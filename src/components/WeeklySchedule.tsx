@@ -14,6 +14,9 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
 
   // Calculate time range
   const timeSlots = generateTimeSlots();
+  // Layout constants
+  const HOUR_HEIGHT = 60; // px per hour row
+  const BORDER_PX = 1; // px border-bottom on each time row
 
   return (
     <div className="w-full overflow-x-auto">
@@ -62,10 +65,12 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
               const endMinutes = parseTime(block.meetingPattern.endTime);
               const duration = endMinutes - startMinutes;
 
-              // Calculate position (8 AM = 480 minutes)
+              // Calculate position (8 AM = 480 minutes). Account for row borders so blocks align with hour lines.
               const startOffset = startMinutes - 480;
-              const top = (startOffset / 60) * 60; // 60px per hour
-              const height = (duration / 60) * 60;
+              const fullHoursSinceStart = Math.floor(startOffset / 60);
+              const minutesIntoHour = startOffset % 60;
+              const top = fullHoursSinceStart * (HOUR_HEIGHT + BORDER_PX) + (minutesIntoHour / 60) * HOUR_HEIGHT;
+              const height = (duration / 60) * HOUR_HEIGHT;
 
               // Calculate left position (column width is 1/8 of container)
               const left = `${((dayIndex + 1) / 8) * 100}%`;
