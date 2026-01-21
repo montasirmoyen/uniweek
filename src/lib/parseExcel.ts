@@ -1,0 +1,100 @@
+import * as XLSX from 'xlsx';
+import { ClassData, ParsedMeetingPattern } from './types/schedule';
+
+export async function parseScheduleFile(file: File): Promise<ClassData[]> {
+  const arrayBuffer = await file.arrayBuffer();
+  const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+  const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+  
+  const classes: ClassData[] = [];
+  
+  // Start from row 4 (index 3) and check up to row 20
+  for (let row = 4; row <= 20; row++) {
+    const classDesc = getCellValue(worksheet, `A${row}`);
+    
+    // If class description is empty, we've reached the end
+    if (!classDesc) break;
+    
+    const classData: ClassData = {
+      classDescription: classDesc,
+      courseName: getCellValue(worksheet, `B${row}`),
+      credits: getCellValue(worksheet, `E${row}`),
+      gradingBasis: getCellValue(worksheet, `F${row}`),
+      section: getCellValue(worksheet, `G${row}`),
+      registrationStatus: getCellValue(worksheet, `H${row}`),
+      instructionalFormat: getCellValue(worksheet, `I${row}`),
+      deliveryMode: getCellValue(worksheet, `J${row}`),
+      meetingPatterns: getCellValue(worksheet, `K${row}`),
+      instructor: getCellValue(worksheet, `L${row}`),
+      startDate: getCellValue(worksheet, `M${row}`),
+      endDate: getCellValue(worksheet, `N${row}`),
+    };
+    
+    classes.push(classData);
+  }
+  
+  return classes;
+}
+
+function getCellValue(worksheet: XLSX.WorkSheet, cell: string): string {
+  const cellData = worksheet[cell];
+  if (!cellData) return '';
+  return cellData.v?.toString() || '';
+}
+
+export function parseMeetingPattern(pattern: string): ParsedMeetingPattern[] {
+  if (!pattern) return [];
+  
+  const patterns: ParsedMeetingPattern[] = [];
+  const lines = pattern.split('\n').map(l => l.trim()).filter(l => l);
+  
+  for (const line of lines) {
+    const parts = line.split('|').map(p => p.trim());
+    
+    if (parts.length >= 3) {
+      const daysStr = parts[0];
+      const timeStr = parts[1];
+      const location = parts[2];
+      
+      // Parse days (e.g., "M_W_F" or "T_TH")
+      const days = parseDays(daysStr);
+      
+      // Parse time (e.g., "11:10 AM - 12:00 PM")
+      const timeMatch = timeStr.match(/(\d{1,2}:\d{2}\s*[AP]M)\s*-\s*(\d{1,2}:\d{2}\s*[AP]M)/i);
+      if (timeMatch) {
+        patterns.push({
+          days,
+          startTime: timeMatch[1].trim(),
+          endTime: timeMatch[2].trim(),
+          location,
+        });
+      }
+    }
+  }
+  
+  return patterns;
+}
+
+function parseDays(daysStr: string): string[] {
+  const dayMap: { [key: string]: string } = {
+    'M': 'Monday',
+    'T': 'Tuesday',
+    'W': 'Wednesday',
+    'TH': 'Thursday',
+    'F': 'Friday',
+    'SA': 'Saturday',
+    'SU': 'Sunday',
+  };
+  
+  const days: string[] = [];
+  const tokens = daysStr.split('_').map(t => t.trim());
+  
+  for (const token of tokens) {
+    const upper = token.toUpperCase();
+    if (dayMap[upper]) {
+      days.push(dayMap[upper]);
+    }
+  }
+  
+  return days;
+}
