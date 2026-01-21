@@ -79,7 +79,7 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
               return (
                 <div
                   key={`${block.id}-${day}`}
-                  className={`absolute ${block.color} text-white p-2 rounded shadow-md cursor-pointer hover:opacity-90 transition-opacity overflow-hidden`}
+                  className={`absolute ${block.color} text-white p-2 shadow-md cursor-pointer hover:opacity-90 transition-opacity overflow-hidden`}
                   style={{
                     top: `${top}px`,
                     left,
