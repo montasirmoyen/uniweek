@@ -31,14 +31,9 @@ Weekly Schedule Viewer Architecture:
         - Button saying “I am attending”
             - Right now, there is no backend for storage, so clicking does nothing
     - Mouse hover to see quick desc details
-- Gaps between class blocks will have clickable side view that will show:
-    - Nearest study spots/chilling spots
-        - Will have a button saying “I am here”:
-            - Right now, there is no backend for storage, so clicking does nothing
-    - Nearest food
-        - Filters for halal, vegan, etc.
-        - Sorts for cheapest, popular etc.
-    - Add note
+- Gaps above the first class block and below the last class block:
+    - Nearest train stations, green line, red line etc.
+    - Nearest parking garages
 
 Current Tech Stack Used:
 - Typescript
@@ -48,3 +43,5 @@ Current Tech Stack Used:
 
 Current Dependencies Used:
 - “xlsx” library to parse .xlsx files
+
+Let me know if anything is missing in univerisites data, Ill add it later
