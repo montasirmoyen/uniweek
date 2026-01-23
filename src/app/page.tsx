@@ -13,13 +13,13 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center">
             <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6">
-              Organize & Aestheticize
+              Lorem Ipsum
               <br />
-              <span className="text-primary">Your Class Schedule</span>
+              <span className="text-primary">Dolor Sit Amet</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Upload your Workday schedule and transform it into a beautiful, 
-              visual weekly planner designed for Suffolk University students.
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+              Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
             </p>
             <div className="flex gap-4 justify-center">
               <Link
@@ -41,26 +41,26 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Untitled Section */}
       <section className="py-16 px-4 bg-card">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-center text-card-foreground mb-12">
-            Features
+            Lorem Ipsum
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
-            <FeatureCard
-              title="Visual Schedule"
-              description="See your weekly schedule in a beautiful, color-coded grid view with building images."
+            <UntitledCard
+              title="Lorem Ipsum"
+              description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
               icon="📅"
             />
-            <FeatureCard
-              title="Building Info"
-              description="View building images, nearby MBTA stations, and parking garages for each class."
+            <UntitledCard
+              title="Lorem Ipsum"
+              description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
               icon="🏫"
             />
-            <FeatureCard
-              title="Save & Organize"
-              description="Logged-in users can save multiple schedules and organize them by semester."
+            <UntitledCard
+              title="Lorem Ipsum"
+              description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
               icon="💾"
             />
           </div>
@@ -104,7 +104,7 @@ export default function Home() {
   );
 }
 
-function FeatureCard({ title, description, icon }: { title: string; description: string; icon: string }) {
+function UntitledCard({ title, description, icon }: { title: string; description: string; icon: string }) {
   return (
     <div className="p-6 border border-border rounded-lg bg-background">
       <div className="text-4xl mb-4">{icon}</div>
