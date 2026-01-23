@@ -48,7 +48,16 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
   // Layout constants
   const HOUR_HEIGHT = 60; // px per hour row
   const BORDER_PX = 1; // px border-bottom on each time row
-  const SCHEDULE_START = 480; // 8 AM in minutes
+  const SCHEDULE_START = 360; // 6 AM in minutes
+  const SCHEDULE_END = 1440; // 11 PM in minutes
+
+  // Convert minutes since schedule start to pixel offset from top,
+  // accounting for row borders between hours
+  const minutesToOffset = (minsFromStart: number) => {
+    const fullHours = Math.floor(minsFromStart / 60);
+    const minutesIntoHour = minsFromStart % 60;
+    return fullHours * (HOUR_HEIGHT + BORDER_PX) + (minutesIntoHour / 60) * HOUR_HEIGHT;
+  };
 
   return (
     <div className="w-full overflow-x-auto">
@@ -125,7 +134,6 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
               const buildingKey = extractBuilding(block.meetingPattern.location);
               const building = university.buildings?.[buildingKey];
               const buildingImage = building?.images?.[0];
-              const isHovered = hoveredBlock === `${block.id}-${day}`;
 
               return (
                 <div
@@ -155,34 +163,16 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
                   )}
 
                   {/* Content */}
-                  <div className="relative z-10 p-2 h-full flex flex-col">
-                    <div className="text-xs font-semibold truncate">
+                    <div className="relative bg-black/50 hover:bg-black/25 transition-all z-10 h-full flex flex-col justify-center items-center">
+                    <div className="text-xs font-semibold">
                       {extractCourseCode(block.classData.courseName)}
                     </div>
-                    <div className="text-xs truncate">
+                    <div className="text-xs">
                       {block.meetingPattern.location}
                     </div>
                     <div className="text-xs">
                       {block.meetingPattern.startTime}
                     </div>
-
-                    {/* Hover Tooltip */}
-                    {isHovered && height >= 60 && (
-                      <div className="absolute inset-0 bg-black/90 p-3 flex flex-col justify-center">
-                        <p className="text-sm font-semibold mb-1">
-                          {extractCourseCode(block.classData.courseName)}
-                        </p>
-                        <p className="text-xs opacity-90 mb-1">
-                          {block.classData.instructor}
-                        </p>
-                        <p className="text-xs opacity-75">
-                          {block.meetingPattern.startTime} - {block.meetingPattern.endTime}
-                        </p>
-                        <p className="text-xs opacity-75">
-                          {block.meetingPattern.location}
-                        </p>
-                      </div>
-                    )}
                   </div>
                 </div>
               );
@@ -198,20 +188,19 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
             const left = `${((dayIndex + 1) / 8) * 100}%`;
             const width = `${(1 / 8) * 100}%`;
 
-            // Gap before first class
-            const topGapHeight = ((firstClassStart - SCHEDULE_START) / 60) * HOUR_HEIGHT;
-            
-            // Gap after last class (until 9 PM = 1260 minutes)
-            const SCHEDULE_END = 1260; // 9 PM
-            const bottomGapStart = ((lastClassEnd - SCHEDULE_START) / 60) * HOUR_HEIGHT;
-            const bottomGapHeight = ((SCHEDULE_END - lastClassEnd) / 60) * HOUR_HEIGHT;
+            // Top gap: from schedule start to first class start
+            const topGapHeight = minutesToOffset(firstClassStart - SCHEDULE_START);
+
+            // Bottom gap: from last class end to schedule end
+            const bottomGapTop = minutesToOffset(lastClassEnd - SCHEDULE_START);
+            const bottomGapHeight = minutesToOffset(SCHEDULE_END - SCHEDULE_START) - bottomGapTop;
 
             return (
               <div key={`gaps-${day}`}>
                 {/* Top gap */}
                 {topGapHeight > 30 && (
                   <div
-                    className="absolute bg-accent/20 hover:bg-accent/40 cursor-pointer border border-dashed border-accent transition-colors flex items-center justify-center"
+                    className="absolute bg-accent/20 hover:bg-accent/40 cursor-pointer transition-colors flex items-center justify-center"
                     style={{
                       top: '0px',
                       left,
@@ -229,9 +218,9 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
                 {/* Bottom gap */}
                 {bottomGapHeight > 30 && (
                   <div
-                    className="absolute bg-accent/20 hover:bg-accent/40 cursor-pointer border border-dashed border-accent transition-colors flex items-center justify-center"
+                    className="absolute bg-accent/20 hover:bg-accent/40 cursor-pointer transition-colors flex items-center justify-center"
                     style={{
-                      top: `${bottomGapStart}px`,
+                      top: `${bottomGapTop}px`,
                       left,
                       width,
                       height: `${bottomGapHeight}px`,
@@ -265,7 +254,7 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
 
 function generateTimeSlots(): string[] {
   const slots: string[] = [];
-  for (let hour = 8; hour <= 21; hour++) {
+  for (let hour = 6; hour <= 23; hour++) {
     const period = hour >= 12 ? 'PM' : 'AM';
     const displayHour = hour > 12 ? hour - 12 : hour;
     slots.push(`${displayHour}:00 ${period}`);
