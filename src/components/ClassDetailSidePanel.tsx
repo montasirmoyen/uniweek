@@ -13,6 +13,7 @@ interface ClassDetailSidePanelProps {
 export default function ClassDetailSidePanel({ block, onClose }: ClassDetailSidePanelProps) {
   const [note, setNote] = useState('');
   const [isAttending, setIsAttending] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
 
   // Extract building name from location (e.g., "Sawyer 521" -> "sawyer")
   const extractBuilding = (location: string): string => {
@@ -24,16 +25,21 @@ export default function ClassDetailSidePanel({ block, onClose }: ClassDetailSide
   const university = UNIVERSITIES[0]; // Suffolk University
   const building = university.buildings?.[buildingKey];
 
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => onClose(), 250);
+  };
+
   return (
     <>
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-black/30 z-40 transition-opacity"
-        onClick={onClose}
+        className={`fixed inset-0 bg-black/25 z-40 ${isClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
+        onClick={handleClose}
       />
 
       {/* Side Panel */}
-      <div className="fixed top-0 right-0 h-full w-full md:w-[480px] bg-card shadow-2xl z-50 overflow-y-auto animate-slide-in">
+      <div className={`fixed top-0 right-0 h-full w-full md:w-[480px] bg-card shadow-2xl z-50 overflow-y-auto ${isClosing ? 'animate-slide-out' : 'animate-slide-in'}`}>
         <div className="p-6">
           {/* Header */}
           <div className="flex justify-between items-start mb-6">
@@ -41,7 +47,7 @@ export default function ClassDetailSidePanel({ block, onClose }: ClassDetailSide
               {block.classData.courseName.split(' - ')[0]}
             </h2>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="text-muted-foreground hover:text-foreground text-3xl leading-none transition-colors"
             >
               ×
