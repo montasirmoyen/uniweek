@@ -143,7 +143,7 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
                   onMouseLeave={() => setHoveredBlock(null)}
                 >
                   {/* Building Background Image */}
-                  {buildingImage && typeof buildingImage === 'string' && buildingImage.startsWith('/') && (
+                  {buildingImage && (
                     <div className="absolute inset-0 opacity-50">
                       <Image
                         src={buildingImage}

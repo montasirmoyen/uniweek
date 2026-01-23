@@ -53,19 +53,16 @@ export default function ClassDetailSidePanel({ block, onClose }: ClassDetailSide
             <div className="mb-6">
               <h3 className="text-sm font-semibold text-card-foreground mb-3">Building</h3>
               <div className="grid grid-cols-2 gap-2">
-                {building.images.map((image, idx) => {
-                  const imagePath = image.startsWith('/') ? image : `/${image}`;
-                  return (
-                    <div key={idx} className="relative aspect-video rounded-lg overflow-hidden">
-                      <Image
-                        src={imagePath}
-                        alt={`${buildingKey} building`}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  );
-                })}
+                {building.images.map((image, idx) => (
+                  <div key={idx} className="relative aspect-video rounded-lg overflow-hidden">
+                    <Image
+                      src={image}
+                      alt={`${buildingKey} building`}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
               </div>
             </div>
           )}
