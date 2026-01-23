@@ -15,12 +15,16 @@ export async function parseScheduleFile(file: File): Promise<ClassData[]> {
     // If class description is empty, we've reached the end
     if (!classDesc) break;
     
+    const courseName = getCellValue(worksheet, `B${row}`);
+    const rawSectionField = getCellValue(worksheet, `G${row}`);
+    const computedSection = deriveSectionNumber(courseName, rawSectionField) ?? rawSectionField;
+
     const classData: ClassData = {
       classDescription: classDesc,
-      courseName: getCellValue(worksheet, `B${row}`),
+      courseName,
       credits: getCellValue(worksheet, `E${row}`),
       gradingBasis: getCellValue(worksheet, `F${row}`),
-      section: getCellValue(worksheet, `G${row}`),
+      section: computedSection,
       registrationStatus: getCellValue(worksheet, `H${row}`),
       instructionalFormat: getCellValue(worksheet, `I${row}`),
       deliveryMode: getCellValue(worksheet, `J${row}`),
@@ -97,4 +101,37 @@ function parseDays(daysStr: string): string[] {
   }
   
   return days;
+}
+
+/**
+ * Derive section number from the courseName and the raw section field.
+ * Example:
+ *  courseName: "CMPSC 345 - Software Engineering"
+ *  section:    "CMPSC 345-1 - Software Engineering"  => returns "1"
+ */
+function deriveSectionNumber(courseName: string, sectionField: string): string | null {
+  if (!courseName || !sectionField) return null;
+
+  // Extract department and course number from courseName (e.g., CMPSC 345)
+  const courseMatch = courseName.match(/^([A-Za-z]+)\s*(\d+)/);
+  if (!courseMatch) return null;
+  const dept = courseMatch[1].replace(/\s+/g, '').toUpperCase();
+  const courseNum = courseMatch[2];
+
+  // Try to match pattern like "CMPSC 345-1" at the start of the section field
+  const sectionMatch = sectionField.match(/^([A-Za-z]+)\s*(\d+)-(\w+)/);
+  if (sectionMatch) {
+    const sDept = sectionMatch[1].replace(/\s+/g, '').toUpperCase();
+    const sCourseNum = sectionMatch[2];
+    const sSuffix = sectionMatch[3];
+    if (sDept === dept && sCourseNum === courseNum && /^\d+$/.test(sSuffix)) {
+      return sSuffix; // numeric section
+    }
+  }
+
+  // Fallback: look for any hyphen-number sequence in the field
+  const hyphenNum = sectionField.match(/-(\d+)\b/);
+  if (hyphenNum) return hyphenNum[1];
+
+  return null;
 }
