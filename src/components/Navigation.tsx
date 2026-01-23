@@ -18,7 +18,7 @@ export default function Navigation() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-8">
               <Link href="/" className="text-xl font-bold text-card-foreground">
-                Schedule
+                UniWeek
               </Link>
               
               <div className="hidden md:flex gap-6">
