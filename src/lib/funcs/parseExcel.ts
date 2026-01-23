@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import { ClassData, ParsedMeetingPattern } from './types/schedule';
+import { ClassData, ParsedMeetingPattern } from '../types/schedule';
 
 export async function parseScheduleFile(file: File): Promise<ClassData[]> {
   const arrayBuffer = await file.arrayBuffer();
