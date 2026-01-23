@@ -1,4 +1,4 @@
-const path = "@/assets/images/universities/";
+const path = "/assets/images/universities/";
 
 export interface Building {
     images: string[];
