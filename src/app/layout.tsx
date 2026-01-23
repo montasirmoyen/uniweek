@@ -11,8 +11,8 @@ const onest = Onest({
 
 
 export const metadata: Metadata = {
-  title: "Suffolk Schedule - Organize & Aestheticize Your Classes",
-  description: "Help Suffolk University students organize and aestheticize their class schedule",
+  title: "UniWeek - Schedule Organizer",
+  description: "Organize and maximize your class schedule",
 };
 
 export default function RootLayout({
