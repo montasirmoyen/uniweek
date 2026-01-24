@@ -60,13 +60,13 @@ export function parseMeetingPattern(pattern: string): ParsedMeetingPattern[] {
       const location = parts[2];
       
       // Parse days (e.g., "M_W_F" or "T_TH")
-      const days = parseDays(daysStr);
+      const daysMeeting = parseDays(daysStr);
       
       // Parse time (e.g., "11:10 AM - 12:00 PM")
       const timeMatch = timeStr.match(/(\d{1,2}:\d{2}\s*[AP]M)\s*-\s*(\d{1,2}:\d{2}\s*[AP]M)/i);
       if (timeMatch) {
         patterns.push({
-          days,
+          daysMeeting,
           startTime: timeMatch[1].trim(),
           endTime: timeMatch[2].trim(),
           location,
@@ -111,14 +111,16 @@ function parseDays(daysStr: string): string[] {
 function deriveSectionNumber(courseName: string, sectionField: string): string | null {
   if (!courseName || !sectionField) return null;
 
-  // Extract department and course number from courseName (e.g., CMPSC 345)
-  const courseMatch = courseName.match(/^([A-Za-z]+)\s*(\d+)/);
+  // Extract department and course number from courseName
+  // Allow optional letter(s) before digits (e.g., CMPSC F355)
+  const courseMatch = courseName.match(/^([A-Za-z]+)\s*[A-Za-z]*(\d+)/);
   if (!courseMatch) return null;
   const dept = courseMatch[1].replace(/\s+/g, '').toUpperCase();
   const courseNum = courseMatch[2];
 
-  // Try to match pattern like "CMPSC 345-1" at the start of the section field
-  const sectionMatch = sectionField.match(/^([A-Za-z]+)\s*(\d+)-(\w+)/);
+  // Try to match pattern like "CMPSC 345-1" or "CMPSC F355-1" at the start of the section field
+  // Allow optional letter(s) before digits and support ASCII hyphen, en dash, or em dash
+  const sectionMatch = sectionField.match(/^([A-Za-z]+)\s*[A-Za-z]*(\d+)[-–—](\w+)/);
   if (sectionMatch) {
     const sDept = sectionMatch[1].replace(/\s+/g, '').toUpperCase();
     const sCourseNum = sectionMatch[2];
@@ -129,7 +131,7 @@ function deriveSectionNumber(courseName: string, sectionField: string): string |
   }
 
   // Fallback: look for any hyphen-number sequence in the field
-  const hyphenNum = sectionField.match(/-(\d+)\b/);
+  const hyphenNum = sectionField.match(/[-–—](\d+)\b/);
   if (hyphenNum) return hyphenNum[1];
 
   return null;
