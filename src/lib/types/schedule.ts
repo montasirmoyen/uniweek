@@ -14,7 +14,7 @@ export interface ClassData {
 }
 
 export interface ParsedMeetingPattern {
-  days: string[];
+  daysMeeting: string[];
   startTime: string;
   endTime: string;
   location: string;
