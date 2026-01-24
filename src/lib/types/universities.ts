@@ -6,6 +6,7 @@ export interface Building {
     "nearest-mbta": Record<string, string[]>;
     "nearest-parking": string[];
     "nearest-common-area": string[];
+    "nearest-dining-halls": string[];
 }
 
 export interface ResidenceHall {
@@ -29,6 +30,14 @@ export interface TrainStation {
 
 export interface CommonArea {
     location: string;
+    residenceHall?: boolean;
+    description?: string;
+    images: string[];
+}
+
+export interface DiningHall {
+    location: string;
+    residenceHall?: boolean;
     description?: string;
     images: string[];
 }
@@ -44,6 +53,7 @@ export interface University {
     parkingGarages?: Record<string, ParkingGarage>,
     mbtaStations?: Record<string, Record<string, TrainStation>>,
     commonAreas?: Record<string, CommonArea>,
+    diningHallsAndCafes?: Record<string, DiningHall>,
 };
 
 export const UNIVERSITIES: University[] = [
@@ -54,6 +64,103 @@ export const UNIVERSITIES: University[] = [
             "campus": [
                 path + "su/sargent-aerial-1.jpg",
             ],
+        },
+        buildings: {
+            "samia": {
+                fullName: "Samia Academic Center",
+                images: [
+                    path + "su/samia-1.webp",
+                    path + "su/samia-2.jpg",
+                ],
+                "nearest-mbta": {
+                    "green-line": ["government-center"],
+                    "orange-line": ["haymarket"],
+                    "blue-line": ["government-center"],
+                },
+                "nearest-parking": ["73-tremont", "center-plaza", "charles-river-garage"],
+                "nearest-common-area": ["library", "samia", "one-beacon", "sawyer"],
+                "nearest-dining-halls": ["samia", "sawyer", "stahl", "miller"]
+            },
+            "sawyer": {
+                fullName: "Sawyer Building",
+                images: [path + "su/sawyer-1.jpg"],
+                "nearest-mbta": {
+                    "green-line": ["government-center"],
+                    "orange-line": ["haymarket"],
+                    "blue-line": ["government-center"],
+                },
+                "nearest-parking": ["73-tremont", "center-plaza"],
+                "nearest-common-area": ["library", "samia", "one-beacon", "sawyer"],
+                "nearest-dining-halls": ["samia", "sawyer", "stahl", "miller"]
+            },
+            "one-beacon": {
+                fullName: "One Beacon Street Center for Entrepreneurship",
+                images: [path + "su/onebeacon-1.jpg"],
+                "nearest-mbta": {
+                    "green-line": ["government-center"],
+                    "orange-line": ["haymarket"],
+                    "blue-line": ["government-center"],
+                },
+                "nearest-parking": ["73-tremont", "center-plaza"],
+                "nearest-common-area": ["library", "samia", "one-beacon", "sawyer"],
+                "nearest-dining-halls": ["samia", "sawyer", "stahl", "miller"]
+            },
+            "stahl": {
+                fullName: "Rosalie K. Stahl Building",
+                images: [path + "su/stahl-1.jpg"],
+                "nearest-mbta": {
+                    "green-line": ["government-center", "park-street"],
+                    "orange-line": ["state", "downtown-crossing"],
+                    "blue-line": ["government-center", "state"],
+                    "red-line": ["park-street"],
+                },
+                "nearest-parking": ["73-tremont", "center-plaza"],
+                "nearest-common-area": ["library", "samia", "one-beacon", "sawyer"],
+                "nearest-dining-halls": ["samia", "sawyer", "stahl", "miller", "sargent"]
+            },
+            "sargent": {
+                fullName: "David J. Sargent Hall",
+                images: [
+                    path + "su/sargent-1.jpg",
+                    path + "su/sargent-2.jpg",
+                ],
+                "nearest-mbta": {
+                    "green-line": ["park-street"],
+                    "orange-line": ["state", "downtown-crossing"],
+                    "blue-line": ["state"],
+                    "red-line": ["park-street"],
+                },
+                "nearest-parking": ["73-tremont"],
+                "nearest-common-area": ["sargent", "library"],
+                "nearest-dining-halls": ["stahl", "smith", "sargent"]
+            },
+            "modern-theatre": {
+                fullName: "Modern Theatre Building",
+                images: [
+                    path + "su/modern-theatre-1.jpg",
+                    path + "su/modern-theatre-2.jpg",
+                ],
+                "nearest-mbta": {
+                    "green-line": ["park-street"],
+                    "orange-line": ["state", "downtown-crossing"],
+                    "blue-line": ["state"],
+                    "red-line": ["park-street"],
+                },
+                "nearest-parking": ["73-tremont"],
+                "nearest-common-area": ["sargent"],
+                "nearest-dining-halls": ["smith"]
+            },
+            "ridgeway": {
+                images: [path + "su/ridgeway-1.jpg"],
+                "nearest-mbta": {
+                    "green-line": ["government-center"],
+                    "orange-line": ["haymarket"],
+                    "blue-line": ["government-center", "bowdoin"],
+                },
+                "nearest-parking": ["center-plaza", "charles-river-garage"],
+                "nearest-common-area": ["samia", "sawyer"],
+                "nearest-dining-halls": ["samia", "sawyer"]
+            },
         },
         commonAreas: {
             "library": {
@@ -91,94 +198,50 @@ export const UNIVERSITIES: University[] = [
                 ],
             },
         },
-        buildings: {
+        diningHallsAndCafes: {
             "samia": {
-                fullName: "Samia Academic Center",
+                location: "samia",
+                description: "Located in the basement of the Samia building, this dining hall offers a variety of meal options for students.",
                 images: [
-                    path + "su/samia-1.webp",
-                    path + "su/samia-2.jpg",
+                    path + "su/samia-dining-hall-1.jpg"
                 ],
-                "nearest-mbta": {
-                    "green-line": ["government-center"],
-                    "orange-line": ["haymarket"],
-                    "blue-line": ["government-center"],
-                },
-                "nearest-parking": ["73-tremont", "center-plaza", "charles-river-garage"],
-                "nearest-common-area": ["library", "samia", "one-beacon", "sawyer"],
             },
             "sawyer": {
-                fullName: "Sawyer Building",
-                images: [path + "su/sawyer-1.jpg"],
-                "nearest-mbta": {
-                    "green-line": ["government-center"],
-                    "orange-line": ["haymarket"],
-                    "blue-line": ["government-center"],
-                },
-                "nearest-parking": ["73-tremont", "center-plaza"],
-                "nearest-common-area": ["library", "samia", "one-beacon", "sawyer"],
-            },
-            "one-beacon": {
-                fullName: "One Beacon Street Center for Entrepreneurship",
-                images: [path + "su/onebeacon-1.jpg"],
-                "nearest-mbta": {
-                    "green-line": ["government-center"],
-                    "orange-line": ["haymarket"],
-                    "blue-line": ["government-center"],
-                },
-                "nearest-parking": ["73-tremont", "center-plaza"],
-                "nearest-common-area": ["library", "samia", "one-beacon", "sawyer"],
+                location: "sawyer",
+                description: "A small cafe located in the Sawyer building, offering coffee and light snacks for students.",
+                images: [
+                    path + "su/sawyer-dining-hall-1.jpg"
+                ],
             },
             "stahl": {
-                fullName: "Rosalie K. Stahl Building",
-                images: [path + "su/stahl-1.jpg"],
-                "nearest-mbta": {
-                    "green-line": ["government-center", "park-street"],
-                    "orange-line": ["state", "downtown-crossing"],
-                    "blue-line": ["government-center", "state"],
-                    "red-line": ["park-street"],
-                },
-                "nearest-parking": ["73-tremont", "center-plaza"],
-                "nearest-common-area": ["library", "samia", "one-beacon", "sawyer"],
+                location: "stahl",
+                description: "A small dining hall located in the first floor of the Stahl building, next to the elevators. Offers various meal options for students.",
+                images: [
+                    path + "su/stahl-dining-hall-1.jpg"
+                ],
             },
             "sargent": {
-                fullName: "David J. Sargent Hall",
+                location: "sargent",
+                description: "A small dining hall located in the sixth floor of the Sargent building. Offers nice seating.",
                 images: [
-                    path + "su/sargent-1.jpg",
-                    path + "su/sargent-2.jpg",
+                    path + "su/sargent-dining-hall-1.jpg"
                 ],
-                "nearest-mbta": {
-                    "green-line": ["park-street"],
-                    "orange-line": ["state", "downtown-crossing"],
-                    "blue-line": ["state"],
-                    "red-line": ["park-street"],
-                },
-                "nearest-parking": ["73-tremont"],
-                "nearest-common-area": ["sargent", "library"],
             },
-            "modern-theatre": {
-                fullName: "Modern Theatre Building",
+            "smith": {
+                location: "smith",
+                residenceHall: true,
+                description: "A dining hall located in the first floor of the Smith residence hall. Offers various meal options for students and many seating options.",
                 images: [
-                    path + "su/modern-theatre-1.jpg",
-                    path + "su/modern-theatre-2.jpg",
+                    path + "su/smith-dining-hall-1.jpg"
                 ],
-                "nearest-mbta": {
-                    "green-line": ["park-street"],
-                    "orange-line": ["state", "downtown-crossing"],
-                    "blue-line": ["state"],
-                    "red-line": ["park-street"],
-                },
-                "nearest-parking": ["73-tremont"],
-                "nearest-common-area": ["sargent"],
             },
-            "ridgeway": {
-                images: [path + "su/ridgeway-1.jpg"],
-                "nearest-mbta": {
-                    "green-line": ["government-center"],
-                    "orange-line": ["haymarket"],
-                    "blue-line": ["government-center", "bowdoin"],
-                },
-                "nearest-parking": ["center-plaza", "charles-river-garage"],
-                "nearest-common-area": ["samia", "sawyer"],
+            "miller": {
+                location: "miller",
+                residenceHall: true,
+                description: "A dining hall located in Miller residence hall. Offers various meal options for students and many seating options.",
+                images: [
+                    path + "su/miller-dining-hall-1.jpg"
+                ],
             },
         },
         residenceHalls: {
