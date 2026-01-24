@@ -30,7 +30,7 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
   // Find the first and last class for each day to detect gaps
   const getDayBounds = (day: string) => {
     const dayBlocks = scheduleBlocks.filter(block =>
-      block.meetingPattern.days.includes(day as any)
+      block.meetingPattern.daysMeeting.includes(day as any)
     );
 
     if (dayBlocks.length === 0) return null;
@@ -115,7 +115,7 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
 
           {/* Absolute positioned class blocks */}
           {scheduleBlocks.map((block) =>
-            block.meetingPattern.days.map((day) => {
+            block.meetingPattern.daysMeeting.map((day) => {
               const dayIndex = DAYS_OF_WEEK.indexOf(day as any);
               if (dayIndex === -1) return null;
 
@@ -193,7 +193,7 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
 
             // Compute in-between gaps for this day
             const dayBlocksSorted = scheduleBlocks
-              .filter((block) => block.meetingPattern.days.includes(day as any))
+              .filter((block) => block.meetingPattern.daysMeeting.includes(day as any))
               .sort((a, b) => parseTime(a.meetingPattern.startTime) - parseTime(b.meetingPattern.startTime));
             const betweenGaps: Array<{ top: number; height: number; buildingKey?: string }> = [];
             for (let i = 0; i < dayBlocksSorted.length - 1; i++) {
