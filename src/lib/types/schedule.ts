@@ -1,12 +1,12 @@
 export interface ClassData {
-  classDescription: string;
+  classDescription?: string;
   courseName: string;
   credits: string;
   gradingBasis: string;
   section: string;
   registrationStatus: string;
   instructionalFormat: string;
-  deliveryMode: string;
+  modality: string;
   meetingPatterns: string;
   instructor: string;
   startDate: string;

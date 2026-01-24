@@ -20,14 +20,13 @@ export async function parseScheduleFile(file: File): Promise<ClassData[]> {
     const computedSection = deriveSectionNumber(courseName, rawSectionField) ?? rawSectionField;
 
     const classData: ClassData = {
-      classDescription: classDesc,
       courseName,
       credits: getCellValue(worksheet, `E${row}`),
       gradingBasis: getCellValue(worksheet, `F${row}`),
       section: computedSection,
       registrationStatus: getCellValue(worksheet, `H${row}`),
       instructionalFormat: getCellValue(worksheet, `I${row}`),
-      deliveryMode: getCellValue(worksheet, `J${row}`),
+      modality: getCellValue(worksheet, `J${row}`),
       meetingPatterns: getCellValue(worksheet, `K${row}`),
       instructor: getCellValue(worksheet, `L${row}`),
       startDate: getCellValue(worksheet, `M${row}`),
