@@ -40,6 +40,40 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
     return /cafe/i.test(desc) ? 'Cafe' : 'Dining Hall';
   };
 
+  // Filter MBTA and parking based on building's nearest lists
+  const nearestMbtaMap = buildingKey
+    ? university.buildings?.[buildingKey]?.['nearest-mbta']
+    : undefined;
+  const nearestParkingKeys = buildingKey
+    ? university.buildings?.[buildingKey]?.['nearest-parking']
+    : undefined;
+
+  const filteredMbtaStations = nearestMbtaMap && university.mbtaStations
+    ? Object.entries(university.mbtaStations)
+        .map(([line, stations]) => {
+          const allowedStations = nearestMbtaMap[line];
+          if (!allowedStations) return null;
+          const filteredStations = Object.entries(stations).filter(([name]) =>
+            allowedStations.includes(name)
+          );
+          return filteredStations.length > 0 ? { line, stations: filteredStations } : null;
+        })
+        .filter((x) => x !== null)
+    : university.mbtaStations
+    ? Object.entries(university.mbtaStations).map(([line, stations]) => ({
+        line,
+        stations: Object.entries(stations),
+      }))
+    : [];
+
+  const filteredParkingGarages = nearestParkingKeys && university.parkingGarages
+    ? Object.entries(university.parkingGarages).filter(([name]) =>
+        nearestParkingKeys.includes(name)
+      )
+    : university.parkingGarages
+    ? Object.entries(university.parkingGarages)
+    : [];
+
   const handleClose = () => {
     setIsClosing(true);
     setTimeout(() => onClose(), 250);
@@ -142,11 +176,11 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
               {/* Arrival & Departure: MBTA Stations */}
               <div className="mb-8">
                 <h3 className="text-lg font-semibold text-card-foreground mb-4">Nearest MBTA Stations</h3>
-                {university.mbtaStations && Object.entries(university.mbtaStations).map(([line, stations]) => (
+                {filteredMbtaStations.map(({ line, stations }) => (
                   <div key={line} className="mb-6">
                     <h4 className="text-sm font-semibold text-card-foreground mb-3 capitalize">{line.replace('-', ' ')}</h4>
                     <div className="space-y-3">
-                      {Object.entries(stations).map(([stationName, stationData]) => (
+                      {stations.map(([stationName, stationData]) => (
                         <div key={stationName} className="border border-border rounded-lg overflow-hidden">
                           <div className="bg-secondary px-3 py-2">
                             <p className="text-sm font-medium text-secondary-foreground capitalize">{stationName.replace('-', ' ')}</p>
@@ -166,11 +200,11 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
               </div>
 
               {/* Arrival & Departure: Parking Garages */}
-              {university.parkingGarages && (
+              {filteredParkingGarages.length > 0 && (
                 <div className="mb-8">
                   <h3 className="text-lg font-semibold text-card-foreground mb-4">Nearest Parking Garages</h3>
                   <div className="space-y-3">
-                    {Object.entries(university.parkingGarages).map(([garageName, garageData]) => {
+                    {filteredParkingGarages.map(([garageName, garageData]) => {
                       const images = (garageData as { images: string[] }).images;
                       return (
                         <div key={garageName} className="border border-border rounded-lg overflow-hidden">
