@@ -89,7 +89,7 @@ export default function ClassDetailSidePanel({ block, onClose }: ClassDetailSide
             <DetailRow label="Credits" value={block.classData.credits} />
             <DetailRow label="Instructor" value={block.classData.instructor} />
             <DetailRow label="Format" value={block.classData.instructionalFormat} />
-            <DetailRow label="Delivery" value={block.classData.deliveryMode} />
+            <DetailRow label="Modality" value={block.classData.modality} />
           </div>
 
           {/* Description */}
