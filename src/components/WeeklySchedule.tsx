@@ -17,6 +17,8 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
   const [selectedBlock, setSelectedBlock] = useState<ScheduleBlock | null>(null);
   const [showGapPanel, setShowGapPanel] = useState(false);
   const [hoveredBlock, setHoveredBlock] = useState<string | null>(null);
+  const [gapBuildingKey, setGapBuildingKey] = useState<string | undefined>(undefined);
+  const [gapMode, setGapMode] = useState<'free' | 'arrival-departure'>('free');
 
   const university = UNIVERSITIES[0]; // Suffolk University
 
@@ -50,7 +52,7 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
   const HOUR_HEIGHT = 60; // px per hour row
   const BORDER_PX = 1; // px border-bottom on each time row
   const SCHEDULE_START = 360; // 6 AM in minutes
-  const SCHEDULE_END = 1440; // 11 PM in minutes
+  const SCHEDULE_END = 1380; // 11 PM in minutes
 
   // Convert minutes since schedule start to pixel offset from top,
   // accounting for row borders between hours
@@ -189,6 +191,24 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
             const left = `${((dayIndex + 1) / 8) * 100}%`;
             const width = `${(1 / 8) * 100}%`;
 
+            // Compute in-between gaps for this day
+            const dayBlocksSorted = scheduleBlocks
+              .filter((block) => block.meetingPattern.days.includes(day as any))
+              .sort((a, b) => parseTime(a.meetingPattern.startTime) - parseTime(b.meetingPattern.startTime));
+            const betweenGaps: Array<{ top: number; height: number; buildingKey?: string }> = [];
+            for (let i = 0; i < dayBlocksSorted.length - 1; i++) {
+              const prev = dayBlocksSorted[i];
+              const next = dayBlocksSorted[i + 1];
+              const gapStart = parseTime(prev.meetingPattern.endTime);
+              const gapEnd = parseTime(next.meetingPattern.startTime);
+              if (gapEnd > gapStart) {
+                const top = minutesToOffset(gapStart - SCHEDULE_START);
+                const height = minutesToOffset(gapEnd - SCHEDULE_START) - top;
+                const buildingKey = extractBuilding(prev.meetingPattern.location);
+                betweenGaps.push({ top, height, buildingKey });
+              }
+            }
+
             // Top gap: from schedule start to first class start
             const topGapHeight = minutesToOffset(firstClassStart - SCHEDULE_START);
 
@@ -208,13 +228,39 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
                       width,
                       height: `${topGapHeight}px`,
                     }}
-                    onClick={() => setShowGapPanel(true)}
+                    onClick={() => {
+                      const firstBlock = dayBlocksSorted[0];
+                      setGapBuildingKey(firstBlock ? extractBuilding(firstBlock.meetingPattern.location) : undefined);
+                      setGapMode('arrival-departure');
+                      setShowGapPanel(true);
+                    }}
                   >
-                    <p className="text-xs text-muted-foreground opacity-0 hover:opacity-100 transition-opacity">
-                      Free Time
-                    </p>
+                    <p className="text-xs text-muted-foreground opacity-0 hover:opacity-100 transition-opacity">Arrival & Departure</p>
                   </div>
                 )}
+
+                {/* Between gaps */}
+                {betweenGaps.map((gap, idx) => (
+                  gap.height > 30 ? (
+                    <div
+                      key={`between-${day}-${idx}`}
+                      className="absolute bg-accent/20 hover:bg-accent/40 cursor-pointer transition-colors flex items-center justify-center"
+                      style={{
+                        top: `${gap.top}px`,
+                        left,
+                        width,
+                        height: `${gap.height}px`,
+                      }}
+                      onClick={() => {
+                        setGapBuildingKey(gap.buildingKey);
+                        setGapMode('free');
+                        setShowGapPanel(true);
+                      }}
+                    >
+                      <p className="text-xs text-muted-foreground opacity-0 hover:opacity-100 transition-opacity">Free Time</p>
+                    </div>
+                  ) : null
+                ))}
 
                 {/* Bottom gap */}
                 {bottomGapHeight > 30 && (
@@ -226,11 +272,14 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
                       width,
                       height: `${bottomGapHeight}px`,
                     }}
-                    onClick={() => setShowGapPanel(true)}
+                    onClick={() => {
+                      const lastBlock = dayBlocksSorted[dayBlocksSorted.length - 1];
+                      setGapBuildingKey(lastBlock ? extractBuilding(lastBlock.meetingPattern.location) : undefined);
+                      setGapMode('arrival-departure');
+                      setShowGapPanel(true);
+                    }}
                   >
-                    <p className="text-xs text-muted-foreground opacity-0 hover:opacity-100 transition-opacity">
-                      Free Time
-                    </p>
+                    <p className="text-xs text-muted-foreground opacity-0 hover:opacity-100 transition-opacity">Arrival & Departure</p>
                   </div>
                 )}
               </div>
@@ -247,7 +296,7 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
       )}
 
       {showGapPanel && (
-        <GapDetailSidePanel onClose={() => setShowGapPanel(false)} />
+        <GapDetailSidePanel mode={gapMode} buildingKey={gapBuildingKey} onClose={() => setShowGapPanel(false)} />
       )}
     </div>
   );
