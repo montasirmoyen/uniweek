@@ -22,8 +22,8 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
     : undefined;
   const commonAreas = nearestCommonKeys
     ? nearestCommonKeys
-        .map((k) => ({ key: k, data: university.commonAreas?.[k] }))
-        .filter((x) => !!x.data)
+      .map((k) => ({ key: k, data: university.commonAreas?.[k] }))
+      .filter((x) => !!x.data)
     : Object.entries(university.commonAreas || {}).map(([k, v]) => ({ key: k, data: v }));
 
   const nearestDiningKeys = buildingKey
@@ -31,8 +31,8 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
     : undefined;
   const diningPlaces = nearestDiningKeys
     ? nearestDiningKeys
-        .map((k) => ({ key: k, data: university.diningHallsAndCafes?.[k] }))
-        .filter((x) => !!x.data)
+      .map((k) => ({ key: k, data: university.diningHallsAndCafes?.[k] }))
+      .filter((x) => !!x.data)
     : Object.entries(university.diningHallsAndCafes || {}).map(([k, v]) => ({ key: k, data: v }));
 
   const computeDiningType = (desc?: string) => {
@@ -50,29 +50,29 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
 
   const filteredMbtaStations = nearestMbtaMap && university.mbtaStations
     ? Object.entries(university.mbtaStations)
-        .map(([line, stations]) => {
-          const allowedStations = nearestMbtaMap[line];
-          if (!allowedStations) return null;
-          const filteredStations = Object.entries(stations).filter(([name]) =>
-            allowedStations.includes(name)
-          );
-          return filteredStations.length > 0 ? { line, stations: filteredStations } : null;
-        })
-        .filter((x) => x !== null)
+      .map(([line, stations]) => {
+        const allowedStations = nearestMbtaMap[line];
+        if (!allowedStations) return null;
+        const filteredStations = Object.entries(stations).filter(([name]) =>
+          allowedStations.includes(name)
+        );
+        return filteredStations.length > 0 ? { line, stations: filteredStations } : null;
+      })
+      .filter((x) => x !== null)
     : university.mbtaStations
-    ? Object.entries(university.mbtaStations).map(([line, stations]) => ({
+      ? Object.entries(university.mbtaStations).map(([line, stations]) => ({
         line,
         stations: Object.entries(stations),
       }))
-    : [];
+      : [];
 
   const filteredParkingGarages = nearestParkingKeys && university.parkingGarages
     ? Object.entries(university.parkingGarages).filter(([name]) =>
-        nearestParkingKeys.includes(name)
-      )
+      nearestParkingKeys.includes(name)
+    )
     : university.parkingGarages
-    ? Object.entries(university.parkingGarages)
-    : [];
+      ? Object.entries(university.parkingGarages)
+      : [];
 
   const handleClose = () => {
     setIsClosing(true);
@@ -82,7 +82,7 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
   return (
     <>
       {/* Backdrop */}
-      <div 
+      <div
         className={`fixed inset-0 bg-black/30 z-40 ${isClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
         onClick={handleClose}
       />
@@ -113,14 +113,21 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
               <div className="mb-8">
                 <h3 className="text-lg font-semibold text-card-foreground mb-4">Nearest Common Areas</h3>
                 <div className="space-y-3">
-                  {commonAreas.map(({ key, data }) => (
+                  {commonAreas.map(({ key, data }) => {
+                    const buildingAddress = data?.location ? university.buildings?.[data.location]?.address : undefined;
+                    return (
                     <div key={key} className="border border-border rounded-lg overflow-hidden">
                       <div className="bg-secondary px-3 py-2 flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-secondary-foreground">{formatName(key)}</p>
-                          {data?.description && (<p className="text-xs text-muted-foreground">{data.description}</p>)}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-secondary-foreground truncate">{formatName(key)}</p>
+                          {buildingAddress && (
+                            <p className="text-[11px] text-muted-foreground truncate">{buildingAddress}</p>
+                          )}
+                          {data?.description && (
+                            <p className="text-xs text-muted-foreground truncate">{data.description}</p>
+                          )}
                         </div>
-                        <button className="px-3 py-1 text-xs bg-primary text-primary-foreground rounded-md">I am here</button>
+                        <button className="px-3 py-1 text-xs bg-primary text-primary-foreground rounded-md shrink-0 w-24 text-center">I am here</button>
                       </div>
                       {data?.images?.length ? (
                         <div className="p-2">
@@ -130,7 +137,8 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
                         </div>
                       ) : null}
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
@@ -138,14 +146,25 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
               <div className="mb-8">
                 <h3 className="text-lg font-semibold text-card-foreground mb-4">Nearest Dining Halls & Cafes</h3>
                 <div className="space-y-3">
-                  {diningPlaces.map(({ key, data }) => (
+                  {diningPlaces.map(({ key, data }) => {
+                    const buildingAddress = data?.location ? university.buildings?.[data.location]?.address : undefined;
+                    return (
                     <div key={key} className="border border-border rounded-lg overflow-hidden">
                       <div className="bg-secondary px-3 py-2 flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-secondary-foreground">{formatName(key)}</p>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-secondary-foreground truncate">{formatName(key)}</p>
+                          {buildingAddress && (
+                            <p className="text-[11px] text-muted-foreground truncate">{buildingAddress}</p>
+                          )}
                           <p className="text-xs text-muted-foreground">{computeDiningType(data?.description)}</p>
+                          {data?.description && (
+                            <p className="text-xs text-muted-foreground truncate">{data.description}</p>
+                          )}
+                          {data?.residenceHall ? (
+                            <p className="text-[11px] text-amber-600">Located in a residence hall</p>
+                          ) : null}
                         </div>
-                        <button className="px-3 py-1 text-xs bg-primary text-primary-foreground rounded-md">I am here</button>
+                        <button className="px-3 py-1 text-xs bg-primary text-primary-foreground rounded-md shrink-0 w-24 text-center">I am here</button>
                       </div>
                       {data?.images?.length ? (
                         <div className="p-2">
@@ -155,7 +174,8 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
                         </div>
                       ) : null}
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
@@ -184,6 +204,9 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
                         <div key={stationName} className="border border-border rounded-lg overflow-hidden">
                           <div className="bg-secondary px-3 py-2">
                             <p className="text-sm font-medium text-secondary-foreground capitalize">{stationName.replace('-', ' ')}</p>
+                            {stationData.address && (
+                              <p className="text-[11px] text-muted-foreground truncate">{stationData.address}</p>
+                            )}
                           </div>
                           {stationData.images.length > 0 && (
                             <div className="p-2">
