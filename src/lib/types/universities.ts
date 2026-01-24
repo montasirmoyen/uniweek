@@ -1,7 +1,8 @@
 const path = "/assets/images/universities/";
 
 export interface Building {
-    fullName?: string;
+    fullName: string;
+    address: string;
     images: string[];
     "nearest-mbta": Record<string, string[]>;
     "nearest-parking": string[];
@@ -68,6 +69,7 @@ export const UNIVERSITIES: University[] = [
         buildings: {
             "samia": {
                 fullName: "Samia Academic Center",
+                address: "8 Ashburton Place, Boston, MA 02108",
                 images: [
                     path + "su/samia-1.webp",
                     path + "su/samia-2.jpg",
@@ -83,6 +85,7 @@ export const UNIVERSITIES: University[] = [
             },
             "sawyer": {
                 fullName: "Sawyer Building",
+                address: "41 Temple Street, Boston, MA 02114",
                 images: [path + "su/sawyer-1.jpg"],
                 "nearest-mbta": {
                     "green-line": ["government-center"],
@@ -95,6 +98,7 @@ export const UNIVERSITIES: University[] = [
             },
             "one-beacon": {
                 fullName: "One Beacon Street Center for Entrepreneurship",
+                address: "1 Beacon Street, Boston, MA 02108",
                 images: [path + "su/onebeacon-1.jpg"],
                 "nearest-mbta": {
                     "green-line": ["government-center"],
@@ -107,6 +111,7 @@ export const UNIVERSITIES: University[] = [
             },
             "stahl": {
                 fullName: "Rosalie K. Stahl Building",
+                address: "8 Ashburton Place, Boston, MA 02108",
                 images: [path + "su/stahl-1.jpg"],
                 "nearest-mbta": {
                     "green-line": ["government-center", "park-street"],
@@ -120,6 +125,7 @@ export const UNIVERSITIES: University[] = [
             },
             "sargent": {
                 fullName: "David J. Sargent Hall",
+                address: "41 Temple Street, Boston, MA 02114",
                 images: [
                     path + "su/sargent-1.jpg",
                     path + "su/sargent-2.jpg",
@@ -136,6 +142,7 @@ export const UNIVERSITIES: University[] = [
             },
             "modern-theatre": {
                 fullName: "Modern Theatre Building",
+                address: "525 Washington Street, Boston, MA 02111",
                 images: [
                     path + "su/modern-theatre-1.jpg",
                     path + "su/modern-theatre-2.jpg",
@@ -151,6 +158,8 @@ export const UNIVERSITIES: University[] = [
                 "nearest-dining-halls": ["smith"]
             },
             "ridgeway": {
+                fullName: "Ridgeway Building",
+                address: "10 Ridgeway Place, Boston, MA 02114",
                 images: [path + "su/ridgeway-1.jpg"],
                 "nearest-mbta": {
                     "green-line": ["government-center"],
