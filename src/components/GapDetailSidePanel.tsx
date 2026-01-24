@@ -103,7 +103,7 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
 
           <p className="text-muted-foreground mb-6">
             {mode === 'free'
-              ? 'Make the most of your break! Explore nearby common areas and dining spots.'
+              ? 'Make the most of your break, explore nearby common areas and dining spots.'
               : 'Arrive and leave campus with ease; transit and parking options below.'}
           </p>
 
