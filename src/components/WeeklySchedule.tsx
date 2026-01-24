@@ -7,6 +7,7 @@ import ClassDetailSidePanel from './ClassDetailSidePanel';
 import GapDetailSidePanel from './GapDetailSidePanel';
 import { UNIVERSITIES } from '@/lib/types/universities';
 import Image from 'next/image';
+import { simplifyBuildingName, stripRoom } from '@/lib/funcs/buildings';
 
 interface WeeklyScheduleProps {
   scheduleBlocks: ScheduleBlock[];
@@ -26,20 +27,20 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
 
   // Find the first and last class for each day to detect gaps
   const getDayBounds = (day: string) => {
-    const dayBlocks = scheduleBlocks.filter(block => 
+    const dayBlocks = scheduleBlocks.filter(block =>
       block.meetingPattern.days.includes(day as any)
     );
-    
+
     if (dayBlocks.length === 0) return null;
-    
+
     const times = dayBlocks.map(block => ({
       start: parseTime(block.meetingPattern.startTime),
       end: parseTime(block.meetingPattern.endTime),
     }));
-    
+
     const firstClassStart = Math.min(...times.map(t => t.start));
     const lastClassEnd = Math.max(...times.map(t => t.end));
-    
+
     return { firstClassStart, lastClassEnd };
   };
 
@@ -163,15 +164,15 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
                   )}
 
                   {/* Content */}
-                    <div className="relative bg-black/50 hover:bg-black/25 transition-all z-10 h-full flex flex-col justify-center items-center">
+                  <div className="relative bg-black/60 hover:bg-black/25 transition-all z-10 h-full flex flex-col justify-center items-center">
                     <div className="text-xs font-semibold">
                       {extractCourseCode(block.classData.courseName)}
                     </div>
                     <div className="text-xs">
-                      {block.meetingPattern.location}
+                      {simplifyBuildingName(block.meetingPattern.location)}
                     </div>
                     <div className="text-xs">
-                      {block.meetingPattern.startTime}
+                      {block.meetingPattern.startTime} - {block.meetingPattern.endTime}
                     </div>
                   </div>
                 </div>
