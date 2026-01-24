@@ -83,8 +83,8 @@ export default function ClassDetailSidePanel({ block, onClose }: ClassDetailSide
               value={`${block.meetingPattern.startTime} - ${block.meetingPattern.endTime}`} 
             />
             <DetailRow 
-              label="Days" 
-              value={block.meetingPattern.days.join(', ')} 
+              label="Days Met" 
+              value={block.meetingPattern.daysMeeting.join(', ')} 
             />
             <DetailRow label="Credits" value={block.classData.credits} />
             <DetailRow label="Instructor" value={block.classData.instructor} />
