@@ -1,15 +1,36 @@
 const path = "/assets/images/universities/";
 
 export interface Building {
+    fullName?: string;
     images: string[];
     "nearest-mbta": Record<string, string[]>;
     "nearest-parking": string[];
+    "nearest-common-area": string[];
 }
 
-export interface Entity {
+export interface ResidenceHall {
+    images: string[];
+    fullName?: string;
+    address: string;
+    website?: string;
+}
+
+export interface ParkingGarage {
     images: string[];
     address: string;
     website?: string;
+}
+
+export interface TrainStation {
+    images: string[];
+    address: string;
+    website?: string;
+}
+
+export interface CommonArea {
+    location: string;
+    description?: string;
+    images: string[];
 }
 
 export interface University {
@@ -19,10 +40,10 @@ export interface University {
     // for now, the buildings have the same nearest-mbta and nearest-parking data,
     // this is intentional and for placeholder only, I'll change it later
     buildings?: Record<string, Building>,
-    residenceHalls?: Record<string, Entity>,
-    parkingGarages?: Record<string, Entity>,
-    mbtaStations?: Record<string, Record<string, Entity>>,
-    commonAreas?: Record<string, string[]>,
+    residenceHalls?: Record<string, ResidenceHall>,
+    parkingGarages?: Record<string, ParkingGarage>,
+    mbtaStations?: Record<string, Record<string, TrainStation>>,
+    commonAreas?: Record<string, CommonArea>,
 };
 
 export const UNIVERSITIES: University[] = [
@@ -34,85 +55,130 @@ export const UNIVERSITIES: University[] = [
                 path + "su/sargent-aerial-1.jpg",
             ],
         },
+        commonAreas: {
+            "library": {
+                location: "stahl",
+                description: "The library within the Rosalie K. Stahl building offers the most areas for students to study, collaborate, and relax between classes.",
+                images: [
+                    path + "su/library-common-1.jpg",
+                    path + "su/library-common-2.jpg",
+                    path + "su/library-common-3.jpg",
+                ],
+            },
+            "samia": {
+                location: "samia",
+                description: "Samia offers many spots to sit and relax in between classes, check the first few floors for areas with comfortable seating.",
+                images: [
+                    path + "su/samia-common-1.webp",
+                ],
+            },
+            "sargent": {
+                location: "sargent",
+                description: "Sargent offers many spots to study and take a break in between classes.",
+                images: [
+                    path + "su/sargent-common-1.jpg",
+                ],
+            },
+            "sawyer": {
+                location: "sawyer",
+                description: "Sawyer offers the second most spots to study and take a break in between classes on the campus.",
+                images: [
+                    path + "su/sawyer-common-1.jpg",
+                    path + "su/sawyer-common-2.jpg",
+                    path + "su/sawyer-common-3.jpg",
+                    path + "su/sawyer-common-4.jpg",
+                    path + "su/sawyer-common-5.jpg",
+                ],
+            },
+        },
         buildings: {
             "samia": {
+                fullName: "Samia Academic Center",
                 images: [
                     path + "su/samia-1.webp",
                     path + "su/samia-2.jpg",
                 ],
                 "nearest-mbta": {
-                    "green-line": ["government-center", "park-street"],
+                    "green-line": ["government-center"],
                     "orange-line": ["haymarket"],
-                    "blue-line": ["bowdoin"],
-                    "red-line": ["park-street"],
+                    "blue-line": ["government-center"],
                 },
-                "nearest-parking": ["73-tremont", "center-plaza"],
+                "nearest-parking": ["73-tremont", "center-plaza", "charles-river-garage"],
+                "nearest-common-area": ["library", "samia", "one-beacon", "sawyer"],
             },
             "sawyer": {
+                fullName: "Sawyer Building",
                 images: [path + "su/sawyer-1.jpg"],
                 "nearest-mbta": {
-                    "green-line": ["government-center", "park-street"],
+                    "green-line": ["government-center"],
                     "orange-line": ["haymarket"],
-                    "blue-line": ["bowdoin"],
-                    "red-line": ["park-street"],
+                    "blue-line": ["government-center"],
                 },
                 "nearest-parking": ["73-tremont", "center-plaza"],
+                "nearest-common-area": ["library", "samia", "one-beacon", "sawyer"],
+            },
+            "one-beacon": {
+                fullName: "One Beacon Street Center for Entrepreneurship",
+                images: [path + "su/onebeacon-1.jpg"],
+                "nearest-mbta": {
+                    "green-line": ["government-center"],
+                    "orange-line": ["haymarket"],
+                    "blue-line": ["government-center"],
+                },
+                "nearest-parking": ["73-tremont", "center-plaza"],
+                "nearest-common-area": ["library", "samia", "one-beacon", "sawyer"],
             },
             "stahl": {
+                fullName: "Rosalie K. Stahl Building",
                 images: [path + "su/stahl-1.jpg"],
                 "nearest-mbta": {
                     "green-line": ["government-center", "park-street"],
-                    "orange-line": ["haymarket"],
-                    "blue-line": ["bowdoin"],
+                    "orange-line": ["state", "downtown-crossing"],
+                    "blue-line": ["government-center", "state"],
                     "red-line": ["park-street"],
                 },
                 "nearest-parking": ["73-tremont", "center-plaza"],
+                "nearest-common-area": ["library", "samia", "one-beacon", "sawyer"],
             },
             "sargent": {
+                fullName: "David J. Sargent Hall",
                 images: [
                     path + "su/sargent-1.jpg",
                     path + "su/sargent-2.jpg",
                 ],
                 "nearest-mbta": {
-                    "green-line": ["government-center", "park-street"],
-                    "orange-line": ["haymarket"],
-                    "blue-line": ["bowdoin"],
+                    "green-line": ["park-street"],
+                    "orange-line": ["state", "downtown-crossing"],
+                    "blue-line": ["state"],
                     "red-line": ["park-street"],
                 },
-                "nearest-parking": ["73-tremont", "center-plaza"],
-            },
-            "one-beacon": {
-                images: [path + "su/onebeacon-1.jpg"],
-                "nearest-mbta": {
-                    "green-line": ["government-center", "park-street"],
-                    "orange-line": ["haymarket"],
-                    "blue-line": ["bowdoin"],
-                    "red-line": ["park-street"],
-                },
-                "nearest-parking": ["73-tremont", "center-plaza"],
+                "nearest-parking": ["73-tremont"],
+                "nearest-common-area": ["sargent", "library"],
             },
             "modern-theatre": {
+                fullName: "Modern Theatre Building",
                 images: [
                     path + "su/modern-theatre-1.jpg",
                     path + "su/modern-theatre-2.jpg",
                 ],
                 "nearest-mbta": {
-                    "green-line": ["government-center", "park-street"],
-                    "orange-line": ["haymarket"],
-                    "blue-line": ["bowdoin"],
+                    "green-line": ["park-street"],
+                    "orange-line": ["state", "downtown-crossing"],
+                    "blue-line": ["state"],
                     "red-line": ["park-street"],
                 },
-                "nearest-parking": ["73-tremont", "center-plaza"],
+                "nearest-parking": ["73-tremont"],
+                "nearest-common-area": ["sargent"],
             },
             "ridgeway": {
                 images: [path + "su/ridgeway-1.jpg"],
                 "nearest-mbta": {
-                    "green-line": ["government-center", "park-street"],
+                    "green-line": ["government-center"],
                     "orange-line": ["haymarket"],
-                    "blue-line": ["bowdoin"],
-                    "red-line": ["park-street"],
+                    "blue-line": ["government-center", "bowdoin"],
                 },
-                "nearest-parking": ["73-tremont", "center-plaza"],
+                "nearest-parking": ["center-plaza", "charles-river-garage"],
+                "nearest-common-area": ["samia", "sawyer"],
             },
         },
         residenceHalls: {
@@ -177,8 +243,13 @@ export const UNIVERSITIES: University[] = [
                 },
                 "state": {
                     images: [path + "su/state-bl-ol-mbta-1.avif"],
-                    address: "State St, Boston, MA 02109",
+                    address: "200 Washington Street, Boston, MA 02109",
                     website: "https://www.mbta.com/stops/place-state",
+                },
+                "downtown-crossing": {
+                    images: [path + "su/dtcrossing-ol-mbta-1.jpg"],
+                    address: "Washington St &, Summer St, Boston, MA 02108",
+                    website: "https://www.mbta.com/stops/place-dwnxg",
                 },
             },
             "red-line": {
@@ -201,6 +272,5 @@ export const UNIVERSITIES: University[] = [
                 },
             }
         },
-
     },
 ];
