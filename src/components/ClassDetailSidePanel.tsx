@@ -144,12 +144,12 @@ export default function ClassDetailSidePanel({ block, onClose }: ClassDetailSide
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-semibold text-card-foreground">RateMyProfessors Stats</h3>
                 <a
-                  href={professor.url}
+                  href={"https://ram-ai.vercel.app/professor/" + professor.id}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-xs text-link hover:underline"
                 >
-                  View RMP Page →
+                  View More →
                 </a>
               </div>
 
