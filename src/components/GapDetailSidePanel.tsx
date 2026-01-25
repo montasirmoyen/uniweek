@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { UNIVERSITIES } from '@/lib/types/universities';
+import { UNIVERSITIES, MBTA_STATIONS, PARKING_GARAGES } from '@/lib/types/universities';
+import { getDistance } from '@/lib/funcs/distance';
 import Image from 'next/image';
 
 interface GapDetailSidePanelProps {
@@ -15,6 +16,10 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
   const [isClosing, setIsClosing] = useState(false);
   const [note, setNote] = useState('');
 
+  // Get the building coordinates for distance calculations
+  const gapBuilding = buildingKey ? university.buildings?.[buildingKey] : undefined;
+  const gapBuildingCoords = gapBuilding?.lngLat;
+
   const formatName = (key: string) => key.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
   const nearestCommonKeys = buildingKey
@@ -26,6 +31,20 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
       .filter((x) => !!x.data)
     : Object.entries(university.commonAreas || {}).map(([k, v]) => ({ key: k, data: v }));
 
+  // Calculate distances for common areas if building coords available
+  const commonAreasWithDistance = gapBuildingCoords
+    ? commonAreas
+      .map(({ key, data }) => {
+        const buildingKey = data?.location;
+        const building = buildingKey ? university.buildings?.[buildingKey] : undefined;
+        const distance = building?.lngLat
+          ? getDistance(gapBuildingCoords[0], gapBuildingCoords[1], building.lngLat[0], building.lngLat[1])
+          : undefined;
+        return { key, data, distance };
+      })
+      .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity))
+    : commonAreas.map(({ key, data }) => ({ key, data, distance: undefined }));
+
   const nearestDiningKeys = buildingKey
     ? university.buildings?.[buildingKey]?.['nearest-dining-halls']
     : undefined;
@@ -34,6 +53,24 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
       .map((k) => ({ key: k, data: university.diningHallsAndCafes?.[k] }))
       .filter((x) => !!x.data)
     : Object.entries(university.diningHallsAndCafes || {}).map(([k, v]) => ({ key: k, data: v }));
+
+  // Calculate distances for dining halls if building coords available
+  const diningPlacesWithDistance = gapBuildingCoords
+    ? diningPlaces
+      .map(({ key, data }) => {
+        const locationKey = data?.location;
+        const isResidenceHall = !!data?.residenceHall;
+        const place = locationKey
+          ? (isResidenceHall ? university.residenceHalls?.[locationKey] : university.buildings?.[locationKey])
+          : undefined;
+        const coords = place?.lngLat;
+        const distance = coords
+          ? getDistance(gapBuildingCoords[0], gapBuildingCoords[1], coords[0], coords[1])
+          : undefined;
+        return { key, data, distance };
+      })
+      .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity))
+    : diningPlaces.map(({ key, data }) => ({ key, data, distance: undefined }));
 
   const computeDiningType = (desc?: string) => {
     if (!desc) return 'Dining Hall / Cafe';
@@ -53,26 +90,64 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
       .map(([line, stations]) => {
         const allowedStations = nearestMbtaMap[line];
         if (!allowedStations) return null;
-        const filteredStations = Object.entries(stations).filter(([name]) =>
-          allowedStations.includes(name)
-        );
+        const filteredStations = stations
+          .filter((name) => allowedStations.includes(name))
+          .map((stationName) => ({ stationName, stationData: MBTA_STATIONS[stationName] }))
+          .filter((x) => !!x.stationData);
         return filteredStations.length > 0 ? { line, stations: filteredStations } : null;
       })
       .filter((x) => x !== null)
     : university.mbtaStations
-      ? Object.entries(university.mbtaStations).map(([line, stations]) => ({
-        line,
-        stations: Object.entries(stations),
-      }))
+      ? Object.entries(university.mbtaStations)
+        .map(([line, stations]) => ({
+          line,
+          stations: stations
+            .map((stationName) => ({ stationName, stationData: MBTA_STATIONS[stationName] }))
+            .filter((x) => !!x.stationData),
+        }))
+        .filter(({ stations }) => stations.length > 0)
       : [];
 
+  // Calculate distances for MBTA stations if building coords available
+  const mbtaStationsWithDistance = gapBuildingCoords
+    ? filteredMbtaStations.map(({ line, stations }) => ({
+        line,
+        stations: stations
+          .map(({ stationName, stationData }) => {
+            const distance = stationData?.lngLat
+              ? getDistance(gapBuildingCoords[0], gapBuildingCoords[1], stationData.lngLat[0], stationData.lngLat[1])
+              : undefined;
+            return { stationName, stationData, distance };
+          })
+          .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity)),
+      }))
+    : filteredMbtaStations.map(({ line, stations }) => ({
+        line,
+        stations: stations.map(({ stationName, stationData }) => ({ stationName, stationData, distance: undefined })),
+      }));
+
   const filteredParkingGarages = nearestParkingKeys && university.parkingGarages
-    ? Object.entries(university.parkingGarages).filter(([name]) =>
-      nearestParkingKeys.includes(name)
-    )
+    ? university.parkingGarages
+      .filter((name) => nearestParkingKeys.includes(name))
+      .map((garageName) => ({ garageName, garageData: PARKING_GARAGES[garageName] }))
+      .filter((x) => !!x.garageData)
     : university.parkingGarages
-      ? Object.entries(university.parkingGarages)
+      ? university.parkingGarages
+        .map((garageName) => ({ garageName, garageData: PARKING_GARAGES[garageName] }))
+        .filter((x) => !!x.garageData)
       : [];
+
+  // Calculate distances for parking garages if building coords available
+  const parkingGaragesWithDistance = gapBuildingCoords
+    ? filteredParkingGarages
+      .map(({ garageName, garageData }) => {
+        const distance = garageData?.lngLat
+          ? getDistance(gapBuildingCoords[0], gapBuildingCoords[1], garageData.lngLat[0], garageData.lngLat[1])
+          : undefined;
+        return { garageName, garageData, distance };
+      })
+      .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity))
+    : filteredParkingGarages.map(({ garageName, garageData }) => ({ garageName, garageData, distance: undefined }));
 
   const handleClose = () => {
     setIsClosing(true);
@@ -113,13 +188,16 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
               <div className="mb-8">
                 <h3 className="text-lg font-semibold text-card-foreground mb-4">Nearest Common Areas</h3>
                 <div className="space-y-3">
-                  {commonAreas.map(({ key, data }) => {
+                  {commonAreasWithDistance.map(({ key, data, distance }) => {
                     const buildingAddress = data?.location ? university.buildings?.[data.location]?.address : undefined;
                     return (
                     <div key={key} className="border border-border rounded-lg overflow-hidden">
                       <div className="bg-secondary px-3 py-2 flex items-center justify-between">
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-secondary-foreground truncate">{formatName(key)}</p>
+                          <p className="text-sm font-medium text-secondary-foreground truncate">
+                            {formatName(key)}
+                            {distance !== undefined && <span className="ml-2 text-xs text-muted-foreground">({distance.toFixed(1)} mi)</span>}
+                          </p>
                           {buildingAddress && (
                             <p className="text-[11px] text-muted-foreground truncate">{buildingAddress}</p>
                           )}
@@ -146,15 +224,22 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
               <div className="mb-8">
                 <h3 className="text-lg font-semibold text-card-foreground mb-4">Nearest Dining Halls & Cafes</h3>
                 <div className="space-y-3">
-                  {diningPlaces.map(({ key, data }) => {
-                    const buildingAddress = data?.location ? university.buildings?.[data.location]?.address : undefined;
+                  {diningPlacesWithDistance.map(({ key, data, distance }) => {
+                    const locationKey = data?.location;
+                    const isResidenceHall = !!data?.residenceHall;
+                    const locationAddress = locationKey
+                      ? (isResidenceHall ? university.residenceHalls?.[locationKey]?.address : university.buildings?.[locationKey]?.address)
+                      : undefined;
                     return (
                     <div key={key} className="border border-border rounded-lg overflow-hidden">
                       <div className="bg-secondary px-3 py-2 flex items-center justify-between">
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-secondary-foreground truncate">{formatName(key)}</p>
-                          {buildingAddress && (
-                            <p className="text-[11px] text-muted-foreground truncate">{buildingAddress}</p>
+                          <p className="text-sm font-medium text-secondary-foreground truncate">
+                            {formatName(key)}
+                            {distance !== undefined && <span className="ml-2 text-xs text-muted-foreground">({distance.toFixed(1)} mi)</span>}
+                          </p>
+                          {locationAddress && (
+                            <p className="text-[11px] text-muted-foreground truncate">{locationAddress}</p>
                           )}
                           <p className="text-xs text-muted-foreground">{computeDiningType(data?.description)}</p>
                           {data?.description && (
@@ -196,25 +281,28 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
               {/* Arrival & Departure: MBTA Stations */}
               <div className="mb-8">
                 <h3 className="text-lg font-semibold text-card-foreground mb-4">Nearest MBTA Stations</h3>
-                {filteredMbtaStations.map(({ line, stations }) => (
+                {mbtaStationsWithDistance.map(({ line, stations }) => (
                   <div key={line} className="mb-6">
                     <h4 className="text-sm font-semibold text-card-foreground mb-3 capitalize">{line.replace('-', ' ')}</h4>
                     <div className="space-y-3">
-                      {stations.map(([stationName, stationData]) => (
+                      {stations.map(({ stationName, stationData, distance }) => (
                         <div key={stationName} className="border border-border rounded-lg overflow-hidden">
                           <div className="bg-secondary px-3 py-2">
-                            <p className="text-sm font-medium text-secondary-foreground capitalize">{stationName.replace('-', ' ')}</p>
-                            {stationData.address && (
+                            <p className="text-sm font-medium text-secondary-foreground capitalize">
+                              {stationName.replace('-', ' ')}
+                              {distance !== undefined && <span className="ml-2 text-xs text-muted-foreground">({distance.toFixed(1)} mi)</span>}
+                            </p>
+                            {stationData?.address && (
                               <p className="text-[11px] text-muted-foreground truncate">{stationData.address}</p>
                             )}
                           </div>
-                          {stationData.images.length > 0 && (
+                          {stationData?.images?.length ? (
                             <div className="p-2">
                               <div className="relative aspect-video rounded overflow-hidden">
                                 <Image src={stationData.images[0]} alt={`${stationName} station`} fill className="object-cover" />
                               </div>
                             </div>
-                          )}
+                          ) : null}
                         </div>
                       ))}
                     </div>
@@ -223,27 +311,30 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
               </div>
 
               {/* Arrival & Departure: Parking Garages */}
-              {filteredParkingGarages.length > 0 && (
+              {parkingGaragesWithDistance.length > 0 && (
                 <div className="mb-8">
                   <h3 className="text-lg font-semibold text-card-foreground mb-4">Nearest Parking Garages</h3>
                   <div className="space-y-3">
-                    {filteredParkingGarages.map(([garageName, garageData]) => {
-                      const images = (garageData as { images: string[] }).images;
-                      return (
-                        <div key={garageName} className="border border-border rounded-lg overflow-hidden">
-                          <div className="bg-secondary px-3 py-2">
-                            <p className="text-sm font-medium text-secondary-foreground capitalize">{garageName.replace('-', ' ')}</p>
-                          </div>
-                          {images.length > 0 && (
-                            <div className="p-2">
-                              <div className="relative aspect-video rounded overflow-hidden">
-                                <Image src={images[0]} alt={`${garageName} parking`} fill className="object-cover" />
-                              </div>
-                            </div>
+                    {parkingGaragesWithDistance.map(({ garageName, garageData, distance }) => (
+                      <div key={garageName} className="border border-border rounded-lg overflow-hidden">
+                        <div className="bg-secondary px-3 py-2">
+                          <p className="text-sm font-medium text-secondary-foreground capitalize">
+                            {garageName.replace('-', ' ')}
+                            {distance !== undefined && <span className="ml-2 text-xs text-muted-foreground">({distance.toFixed(1)} mi)</span>}
+                          </p>
+                          {garageData?.address && (
+                            <p className="text-[11px] text-muted-foreground truncate">{garageData.address}</p>
                           )}
                         </div>
-                      );
-                    })}
+                        {garageData?.images?.length ? (
+                          <div className="p-2">
+                            <div className="relative aspect-video rounded overflow-hidden">
+                              <Image src={garageData.images[0]} alt={`${garageName} parking`} fill className="object-cover" />
+                            </div>
+                          </div>
+                        ) : null}
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
