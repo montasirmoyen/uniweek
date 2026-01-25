@@ -52,7 +52,7 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
   const HOUR_HEIGHT = 60; // px per hour row
   const BORDER_PX = 1; // px border-bottom on each time row
   const SCHEDULE_START = 360; // 6 AM in minutes
-  const SCHEDULE_END = 1380; // 11 PM in minutes
+  const SCHEDULE_END = 1440; // 12 AM in minutes
 
   // Convert minutes since schedule start to pixel offset from top,
   // accounting for row borders between hours
@@ -64,20 +64,6 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
 
   return (
     <div className="w-full overflow-x-auto">
-      {/* Weather Section */}
-      <div className="mb-6 p-4 bg-card rounded-lg border border-border">
-        <div className="flex items-center gap-4">
-          <div>
-            <h3 className="text-lg font-semibold text-card-foreground">Boston, MA</h3>
-            <p className="text-3xl font-bold text-card-foreground">45°F</p>
-          </div>
-          <div className="text-muted-foreground text-sm">
-            <p>Partly Cloudy</p>
-            <p>H: 52° L: 38°</p>
-          </div>
-        </div>
-      </div>
-
       <div className="min-w-[1000px]">
         {/* Header with days */}
         <div className="grid grid-cols-8 border-b border-border">
