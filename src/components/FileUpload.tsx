@@ -23,7 +23,7 @@ export default function FileUpload({ onFileSelect }: FileUploadProps) {
       <div className="flex flex-col items-center gap-4">
         <button
           onClick={() => inputRef.current?.click()}
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-md"
+          className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/80 transition-colors font-medium shadow-md"
         >
           Upload Schedule (.xlsx)
         </button>
