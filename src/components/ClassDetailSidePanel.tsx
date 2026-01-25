@@ -4,6 +4,22 @@ import { useState } from 'react';
 import { ScheduleBlock } from '@/lib/types/schedule';
 import { UNIVERSITIES } from '@/lib/types/universities';
 import Image from 'next/image';
+import professorsData from '@/data/professors.json';
+import { StarHalf, Star, Book, ChartArea, Pin, Clock, Calendar, GraduationCap, User, Clipboard, Computer } from "lucide-react";
+
+interface Professor {
+  id: number;
+  name: string;
+  firstName: string;
+  lastName: string;
+  department: string;
+  rating: number;
+  difficulty: number;
+  numRatings: number;
+  wouldTakeAgainPercent: number;
+  url: string;
+  topTags?: Array<{ name: string; count: number }> | string[];
+}
 
 interface ClassDetailSidePanelProps {
   block: ScheduleBlock;
@@ -21,9 +37,37 @@ export default function ClassDetailSidePanel({ block, onClose }: ClassDetailSide
     return buildingName;
   };
 
+  // Find professor in RMP database
+  const findProfessor = (instructorName: string): Professor | undefined => {
+    if (!instructorName) return undefined;
+    const professors = professorsData as Professor[];
+    return professors.find((prof) => {
+      const fullName = `${prof.firstName} ${prof.lastName}`.toLowerCase();
+      return fullName === instructorName.toLowerCase() || prof.name.toLowerCase() === instructorName.toLowerCase();
+    });
+  };
+
+  // Render star rating
+  const renderStars = (rating: number) => {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+    return (
+      <div className="flex items-center gap-0.5">
+        {[...Array(fullStars)].map((_, i) => (
+          <Star key={`full-${i}`} color="#ffd90000" fill="#FFD700" />
+        ))}
+        {hasHalfStar && <StarHalf color="#ffd90000" fill="#FFD700" />}
+        <span className="ml-1 text-sm font-semibold text-card-foreground">{rating.toFixed(1)}</span>
+      </div>
+    );
+  };
+
   const buildingKey = extractBuilding(block.meetingPattern.location);
   const university = UNIVERSITIES[0]; // Suffolk University
   const building = university.buildings?.[buildingKey];
+  const professor = findProfessor(block.classData.instructor);
 
   const handleClose = () => {
     setIsClosing(true);
@@ -33,7 +77,7 @@ export default function ClassDetailSidePanel({ block, onClose }: ClassDetailSide
   return (
     <>
       {/* Backdrop */}
-      <div 
+      <div
         className={`fixed inset-0 bg-black/25 z-40 ${isClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
         onClick={handleClose}
       />
@@ -75,22 +119,93 @@ export default function ClassDetailSidePanel({ block, onClose }: ClassDetailSide
 
           {/* Class Details */}
           <div className="space-y-4 mb-6">
-            <DetailRow label="Course" value={block.classData.courseName} />
-            <DetailRow label="Section" value={block.classData.section} />
-            <DetailRow label="Location" value={block.meetingPattern.location} />
-            <DetailRow 
-              label="Time" 
-              value={`${block.meetingPattern.startTime} - ${block.meetingPattern.endTime}`} 
+            <DetailRow icon={<Book />} label="Course" value={block.classData.courseName} />
+            <DetailRow icon={<ChartArea />} label="Section" value={block.classData.section} />
+            <DetailRow icon={<Pin />} label="Location" value={block.meetingPattern.location} />
+            <DetailRow
+              icon={<Clock />}
+              label="Time"
+              value={`${block.meetingPattern.startTime} - ${block.meetingPattern.endTime}`}
             />
-            <DetailRow 
-              label="Days Met" 
-              value={block.meetingPattern.daysMeeting.join(', ')} 
+            <DetailRow
+              icon={<Calendar />}
+              label="Days Met"
+              value={block.meetingPattern.daysMeeting.join(', ')}
             />
-            <DetailRow label="Credits" value={block.classData.credits} />
-            <DetailRow label="Instructor" value={block.classData.instructor} />
-            <DetailRow label="Format" value={block.classData.instructionalFormat} />
-            <DetailRow label="Modality" value={block.classData.modality} />
+            <DetailRow icon={<GraduationCap />} label="Credits" value={block.classData.credits} />
+            <DetailRow icon={<User />} label="Professor" value={block.classData.instructor} />
+            <DetailRow icon={<Clipboard />} label="Format" value={block.classData.instructionalFormat} />
+            <DetailRow icon={<Computer />} label="Modality" value={block.classData.modality} />
           </div>
+
+          {/* Professor RMP Ratings */}
+          {professor && (
+            <div className="mb-6 p-4 border border-border rounded-lg bg-secondary/30">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold text-card-foreground">RateMyProfessors Stats</h3>
+                <a
+                  href={professor.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-link hover:underline"
+                >
+                  View RMP Page →
+                </a>
+              </div>
+
+              <div className="space-y-3">
+                {/* Rating */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Overall Rating</span>
+                  {renderStars(professor.rating)}
+                </div>
+
+                {/* Difficulty */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Difficulty</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-32 h-2 bg-black rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-white rounded-full transition-all"
+                        style={{ width: `${(professor.difficulty / 5) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-sm font-semibold text-card-foreground min-w-[2rem] text-right">
+                      {professor.difficulty.toFixed(1)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Would Take Again */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Would Take Again</span>
+                  <span className="text-sm font-semibold text-white">
+                    {professor.wouldTakeAgainPercent.toFixed(0)}%
+                  </span>
+                </div>
+
+                {/* Top Tags */}
+                {professor.topTags && professor.topTags.length > 0 && (
+                  <div className="pt-2">
+                    <span className="text-xs text-muted-foreground mb-2 block">Top Tags</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {professor.topTags.map((tag, idx) => {
+                        const tagName = typeof tag === 'string' ? tag : tag.name;
+                        return (
+                          <span
+                            key={idx}
+                            className="px-2 py-1 text-xs bg-secondary rounded-full"
+                          >
+                            {tagName}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Description */}
           {block.classData.classDescription && (
@@ -119,11 +234,10 @@ export default function ClassDetailSidePanel({ block, onClose }: ClassDetailSide
           {/* Attendance Button */}
           <button
             onClick={() => setIsAttending(!isAttending)}
-            className={`w-full py-3 rounded-md font-semibold transition-colors ${
-              isAttending
+            className={`w-full py-3 rounded-md font-semibold transition-colors ${isAttending
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-            }`}
+              }`}
           >
             {isAttending ? '✓ I am attending' : 'I am attending'}
           </button>
@@ -133,15 +247,18 @@ export default function ClassDetailSidePanel({ block, onClose }: ClassDetailSide
   );
 }
 
-function DetailRow({ label, value }: { label: string; value: string }) {
+function DetailRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="flex gap-2">
-      <span className="font-semibold text-card-foreground min-w-[100px] text-sm">
-        {label}:
-      </span>
-      <span className="text-muted-foreground text-sm">
-        {value || 'N/A'}
-      </span>
+    <div className="flex gap-3 items-start">
+      <div className="flex-1 flex gap-2 min-w-0 items-center">
+        {icon}
+        <span className="font-semibold text-card-foreground min-w-[90px] text-sm shrink-0">
+          {label}:
+        </span>
+        <span className="text-muted-foreground text-sm break-words">
+          {value || 'N/A'}
+        </span>
+      </div>
     </div>
   );
 }
