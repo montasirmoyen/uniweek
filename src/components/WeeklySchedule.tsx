@@ -53,6 +53,7 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
   const BORDER_PX = 1; // px border-bottom on each time row
   const SCHEDULE_START = 360; // 6 AM in minutes
   const SCHEDULE_END = 1440; // 12 AM in minutes
+  const GAP_WINDOW_MIN = 120; // 2 hours window around first/last class
 
   // Convert minutes since schedule start to pixel offset from top,
   // accounting for row borders between hours
@@ -195,12 +196,15 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
               }
             }
 
-            // Top gap: from schedule start to first class start
-            const topGapHeight = minutesToOffset(firstClassStart - SCHEDULE_START);
+            // Top gap: from max(6AM, first class - 2h) to first class start
+            const topGapStart = Math.max(SCHEDULE_START, firstClassStart - GAP_WINDOW_MIN);
+            const topGapTop = minutesToOffset(topGapStart - SCHEDULE_START);
+            const topGapHeight = minutesToOffset(firstClassStart - SCHEDULE_START) - topGapTop;
 
-            // Bottom gap: from last class end to schedule end
+            // Bottom gap: from last class end to min(12AM, last class + 2h)
             const bottomGapTop = minutesToOffset(lastClassEnd - SCHEDULE_START);
-            const bottomGapHeight = minutesToOffset(SCHEDULE_END - SCHEDULE_START) - bottomGapTop;
+            const bottomGapEnd = Math.min(SCHEDULE_END, lastClassEnd + GAP_WINDOW_MIN);
+            const bottomGapHeight = minutesToOffset(bottomGapEnd - SCHEDULE_START) - bottomGapTop;
 
             return (
               <div key={`gaps-${day}`}>
@@ -209,7 +213,7 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
                   <div
                     className="absolute bg-accent/20 hover:bg-accent/40 cursor-pointer transition-colors flex items-center justify-center group"
                     style={{
-                      top: '0px',
+                      top: `${topGapTop}px`,
                       left,
                       width,
                       height: `${topGapHeight}px`,
