@@ -207,7 +207,7 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
                 {/* Top gap */}
                 {topGapHeight > 30 && (
                   <div
-                    className="absolute bg-accent/20 hover:bg-accent/40 cursor-pointer transition-colors flex items-center justify-center"
+                    className="absolute bg-accent/20 hover:bg-accent/40 cursor-pointer transition-colors flex items-center justify-center group"
                     style={{
                       top: '0px',
                       left,
@@ -221,7 +221,7 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
                       setShowGapPanel(true);
                     }}
                   >
-                    <p className="text-xs text-muted-foreground opacity-0 hover:opacity-100 transition-opacity">Arrival & Departure</p>
+                    <p className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-200">Arrival & Departure</p>
                   </div>
                 )}
 
@@ -230,7 +230,7 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
                   gap.height > 30 ? (
                     <div
                       key={`between-${day}-${idx}`}
-                      className="absolute bg-accent/20 hover:bg-accent/40 cursor-pointer transition-colors flex items-center justify-center"
+                      className="absolute bg-accent/20 hover:bg-accent/40 cursor-pointer transition-colors flex items-center justify-center group"
                       style={{
                         top: `${gap.top}px`,
                         left,
@@ -243,7 +243,7 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
                         setShowGapPanel(true);
                       }}
                     >
-                      <p className="text-xs text-muted-foreground opacity-0 hover:opacity-100 transition-opacity">Free Time</p>
+                      <p className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-200">Free Time</p>
                     </div>
                   ) : null
                 ))}
@@ -251,7 +251,7 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
                 {/* Bottom gap */}
                 {bottomGapHeight > 30 && (
                   <div
-                    className="absolute bg-accent/20 hover:bg-accent/40 cursor-pointer transition-colors flex items-center justify-center"
+                    className="absolute bg-accent/20 hover:bg-accent/40 cursor-pointer transition-colors flex items-center justify-center group"
                     style={{
                       top: `${bottomGapTop}px`,
                       left,
@@ -265,7 +265,7 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
                       setShowGapPanel(true);
                     }}
                   >
-                    <p className="text-xs text-muted-foreground opacity-0 hover:opacity-100 transition-opacity">Arrival & Departure</p>
+                    <p className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-200">Arrival & Departure</p>
                   </div>
                 )}
               </div>
