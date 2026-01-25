@@ -225,7 +225,7 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
                       setShowGapPanel(true);
                     }}
                   >
-                    <p className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-200">Arrival & Departure</p>
+                    <p className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-200">Arrival</p>
                   </div>
                 )}
 
@@ -269,7 +269,7 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
                       setShowGapPanel(true);
                     }}
                   >
-                    <p className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-200">Arrival & Departure</p>
+                    <p className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-200">Departure</p>
                   </div>
                 )}
               </div>
