@@ -5,7 +5,7 @@
   --foreground: #171717;
   --card: #ffffff;
   --card-foreground: #171717;
-  --primary: #3b82f6;
+  --primary: #c0094c;
   --primary-foreground: #ffffff;
   --secondary: #f4f4f5;
   --secondary-foreground: #18181b;
@@ -18,6 +18,7 @@
   --border: #e4e4e7;
   --input: #e4e4e7;
   --ring: #3b82f6;
+  --link: #00d9ff;
   --radius: 0.5rem;
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
@@ -31,7 +32,7 @@
     --foreground: #ededed;
     --card: #18181b;
     --card-foreground: #fafafa;
-    --primary: #3b82f6;
+    --primary: #c0094c;
     --primary-foreground: #ffffff;
     --secondary: #27272a;
     --secondary-foreground: #fafafa;
@@ -44,6 +45,7 @@
     --border: #27272a;
     --input: #27272a;
     --ring: #3b82f6;
+    --link: #00d9ff;
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.5);
     --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.5), 0 1px 2px -1px rgb(0 0 0 / 0.5);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.5);
@@ -69,6 +71,7 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-link: var(--link );
   --font-sans: var(--font-onest);
 }
 
@@ -86,6 +89,7 @@ body {
   from {
     transform: translateX(100%);
   }
+
   to {
     transform: translateX(0);
   }
@@ -99,6 +103,7 @@ body {
   from {
     transform: translateX(0);
   }
+
   to {
     transform: translateX(100%);
   }
@@ -109,14 +114,29 @@ body {
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fade-out {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
 }
 
-.animate-fade-in { animation: fade-in 0.2s ease-out; }
-.animate-fade-out { animation: fade-out 0.2s ease-in forwards; }
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}
+
+.animate-fade-out {
+  animation: fade-out 0.2s ease-in forwards;
+}
