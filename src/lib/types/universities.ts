@@ -1,8 +1,64 @@
 const path = "/assets/images/universities/";
+export const MBTA_STATIONS: Record<string, TrainStation> = {
+    "bowdoin": {
+        images: [path + "su/bowdoin-bl-mbta-1.jpg"],
+        address: "1 Bowdoin St, Boston, MA 02114",
+        lngLat: [42.361365, -71.062037],
+        website: "https://www.mbta.com/stops/place-bomnl",
+    },
+    "government-center": {
+        images: [path + "su/govtctr-bl-gl-mbta-1.jpg"],
+        address: "100 Hanover St, Boston, MA 02108",
+        lngLat: [42.359705, -71.059215],
+        website: "https://www.mbta.com/stops/place-gover",
+    },
+    "state": {
+        images: [path + "su/state-bl-ol-mbta-1.avif"],
+        address: "200 Washington St, Boston, MA 02109",
+        lngLat: [42.358978, -71.057598],
+        website: "https://www.mbta.com/stops/place-state",
+    },
+    "haymarket": {
+        images: [path + "su/haymarket-ol-mbta-1.jpeg"],
+        address: "200 Hanover St, Boston, MA 02113",
+        lngLat: [42.363021, -71.05829],
+        website: "https://www.mbta.com/stops/place-haymt",
+    },
+    "downtown-crossing": {
+        images: [path + "su/dtcrossing-ol-mbta-1.jpg"],
+        address: "Washington St &, Summer St, Boston, MA 02108",
+        lngLat: [42.355518, -71.060225],
+        website: "https://www.mbta.com/stops/place-dwnxg",
+    },
+    "park-street": {
+        images: [path + "su/parkst-rl-gl-mbta-1.jpg"],
+        address: "100 Tremont St, Boston, MA 02108",
+        lngLat: [42.356395, -71.062424],
+        website: "https://www.mbta.com/stops/place-pktrm",
+    },
+}
+export const PARKING_GARAGES: Record<string, ParkingGarage> = {
+    "73-tremont": {
+        images: [path + "su/73tremont-parking-1.jpg"],
+        address: "73 Tremont St, Boston, MA 02114",
+        lngLat: [42.357687, -71.063537],
+    },
+    "center-plaza": {
+        images: [path + "su/center-plaza-parking-1.png"],
+        address: "30 Somerset St, Boston, MA 02114",
+        lngLat: [42.360123, -71.063246],
+    },
+    "charles-river-garage": {
+        images: [path + "su/crg-parking-1.jpg"],
+        address: "207 Cambridge St, Boston, MA 02114",
+        lngLat: [42.363456, -71.065678],
+    },
+};
 
 export interface Building {
     fullName: string;
     address: string;
+    lngLat?: [number, number];
     images: string[];
     "nearest-mbta": Record<string, string[]>;
     "nearest-parking": string[];
@@ -14,18 +70,21 @@ export interface ResidenceHall {
     images: string[];
     fullName?: string;
     address: string;
+    lngLat?: [number, number];
     website?: string;
 }
 
 export interface ParkingGarage {
     images: string[];
     address: string;
+    lngLat?: [number, number];
     website?: string;
 }
 
 export interface TrainStation {
     images: string[];
     address: string;
+    lngLat?: [number, number];
     website?: string;
 }
 
@@ -46,13 +105,12 @@ export interface DiningHall {
 export interface University {
     name: string,
     location: string,
+    lngLat: [number, number],
     viewImages?: Record<string, string[]>,
-    // for now, the buildings have the same nearest-mbta and nearest-parking data,
-    // this is intentional and for placeholder only, I'll change it later
     buildings?: Record<string, Building>,
     residenceHalls?: Record<string, ResidenceHall>,
-    parkingGarages?: Record<string, ParkingGarage>,
-    mbtaStations?: Record<string, Record<string, TrainStation>>,
+    parkingGarages?: string[],
+    mbtaStations?: Record<string, string[]>,
     commonAreas?: Record<string, CommonArea>,
     diningHallsAndCafes?: Record<string, DiningHall>,
 };
@@ -61,6 +119,7 @@ export const UNIVERSITIES: University[] = [
     {
         name: 'Suffolk University',
         location: 'Boston, MA, USA',
+        lngLat: [42.3584, -71.0598],
         viewImages: {
             "campus": [
                 path + "su/sargent-aerial-1.jpg",
@@ -70,6 +129,7 @@ export const UNIVERSITIES: University[] = [
             "samia": {
                 fullName: "Samia Academic Center",
                 address: "8 Ashburton Place, Boston, MA 02108",
+                lngLat: [42.358821, -71.063194],
                 images: [
                     path + "su/samia-1.webp",
                     path + "su/samia-2.jpg",
@@ -85,7 +145,8 @@ export const UNIVERSITIES: University[] = [
             },
             "sawyer": {
                 fullName: "Sawyer Building",
-                address: "41 Temple Street, Boston, MA 02114",
+                address: "41 Temple St, Boston, MA 02114",
+                lngLat: [42.360567, -71.064345],
                 images: [path + "su/sawyer-1.jpg"],
                 "nearest-mbta": {
                     "green-line": ["government-center"],
@@ -97,8 +158,9 @@ export const UNIVERSITIES: University[] = [
                 "nearest-dining-halls": ["samia", "sawyer", "stahl", "miller"]
             },
             "one-beacon": {
-                fullName: "One Beacon Street Center for Entrepreneurship",
-                address: "1 Beacon Street, Boston, MA 02108",
+                fullName: "One Beacon St Center for Entrepreneurship",
+                address: "1 Beacon St, Boston, MA 02108",
+                lngLat: [42.357912, -71.061234],
                 images: [path + "su/onebeacon-1.jpg"],
                 "nearest-mbta": {
                     "green-line": ["government-center"],
@@ -112,6 +174,7 @@ export const UNIVERSITIES: University[] = [
             "stahl": {
                 fullName: "Rosalie K. Stahl Building",
                 address: "8 Ashburton Place, Boston, MA 02108",
+                lngLat: [42.358900, -71.063300],
                 images: [path + "su/stahl-1.jpg"],
                 "nearest-mbta": {
                     "green-line": ["government-center", "park-street"],
@@ -125,7 +188,8 @@ export const UNIVERSITIES: University[] = [
             },
             "sargent": {
                 fullName: "David J. Sargent Hall",
-                address: "41 Temple Street, Boston, MA 02114",
+                address: "110 Tremont St, Boston, MA 02108",
+                lngLat: [42.356800, -71.063900],
                 images: [
                     path + "su/sargent-1.jpg",
                     path + "su/sargent-2.jpg",
@@ -142,7 +206,8 @@ export const UNIVERSITIES: University[] = [
             },
             "modern-theatre": {
                 fullName: "Modern Theatre Building",
-                address: "525 Washington Street, Boston, MA 02111",
+                address: "525 Washington St, Boston, MA 02111",
+                lngLat: [42.355500, -71.062200],
                 images: [
                     path + "su/modern-theatre-1.jpg",
                     path + "su/modern-theatre-2.jpg",
@@ -160,6 +225,7 @@ export const UNIVERSITIES: University[] = [
             "ridgeway": {
                 fullName: "Ridgeway Building",
                 address: "10 Ridgeway Place, Boston, MA 02114",
+                lngLat: [42.361800, -71.064500],
                 images: [path + "su/ridgeway-1.jpg"],
                 "nearest-mbta": {
                     "green-line": ["government-center"],
@@ -256,93 +322,40 @@ export const UNIVERSITIES: University[] = [
         residenceHalls: {
             "smith": {
                 images: [path + "su/smith-hall-1.jpg"],
-                address: "150 Tremont Street, Boston, MA 02114",
+                address: "150 Tremont St, Boston, MA 02114",
+                lngLat: [42.357200, -71.064000],
             },
             "court": {
                 images: [path + "su/court-hall-1.jpg"],
-                address: "1 Court Street, Boston, MA 02114",
+                address: "1 Court St, Boston, MA 02114",
+                lngLat: [42.360000, -71.063500],
             },
             "miller": {
                 images: [path + "su/miller-hall-1.jpg"],
-                address: "6 Beacon Street #1120, Boston, MA 02114",
+                address: "6 Beacon St #1120, Boston, MA 02114",
+                lngLat: [42.358300, -71.062500],
             },
             "west": {
                 images: [path + "su/west-hall-1.jpg"],
-                address: "10 West Street, Boston, MA 02111",
+                address: "10 West St, Boston, MA 02111",
+                lngLat: [42.355800, -71.061500],
             },
             "modern-theatre": {
                 images: [path + "su/mt-hall-1.jpg"],
-                address: "525 Washington Steet, Boston, MA 02111",
+                address: "525 Washington St, Boston, MA 02111",
+                lngLat: [42.355500, -71.062200],
             },
         },
-        parkingGarages: {
-            "73-tremont": {
-                images: [path + "su/73tremont-parking-1.jpg"],
-                address: "73 Tremont Street, Boston, MA 02114",
-            },
-            "center-plaza": {
-                images: [path + "su/center-plaza-parking-1.png"],
-                address: "30 Somerset Street, Boston, MA 02114",
-            },
-            "charles-river-garage": {
-                images: [path + "su/crg-parking-1.jpg"],
-                address: "207 Cambridge Street, Boston, MA 02114",
-            },
-        },
+        parkingGarages: [
+            "73-tremont",
+            "center-plaza",
+            "charles-river-garage",
+        ],
         mbtaStations: {
-            "blue-line": {
-                "bowdoin": {
-                    images: [path + "su/bowdoin-bl-mbta-1.jpg"],
-                    address: "Bowdoin Square, Boston, MA 02114",
-                    website: "https://www.mbta.com/stops/place-bomnl",
-                },
-                "government-center": {
-                    images: [path + "su/govtctr-bl-gl-mbta-1.jpg"],
-                    address: "100 Hanover St, Boston, MA 02108",
-                    website: "https://www.mbta.com/stops/place-gover",
-                },
-                "state": {
-                    images: [path + "su/state-bl-ol-mbta-1.avif"],
-                    address: "State St, Boston, MA 02109",
-                    website: "https://www.mbta.com/stops/place-state",
-                },
-            },
-            "orange-line": {
-                "haymarket": {
-                    images: [path + "su/haymarket-ol-mbta-1.jpeg"],
-                    address: "200 Hanover St, Boston, MA 02113",
-                    website: "https://www.mbta.com/stops/place-haymt",
-                },
-                "state": {
-                    images: [path + "su/state-bl-ol-mbta-1.avif"],
-                    address: "200 Washington Street, Boston, MA 02109",
-                    website: "https://www.mbta.com/stops/place-state",
-                },
-                "downtown-crossing": {
-                    images: [path + "su/dtcrossing-ol-mbta-1.jpg"],
-                    address: "Washington St &, Summer St, Boston, MA 02108",
-                    website: "https://www.mbta.com/stops/place-dwnxg",
-                },
-            },
-            "red-line": {
-                "park-street": {
-                    images: [path + "su/parkst-rl-gl-mbta-1.jpg"],
-                    address: "100 Tremont St, Boston, MA 02108",
-                    website: "https://www.mbta.com/stops/place-pktrm",
-                },
-            },
-            "green-line": {
-                "government-center": {
-                    images: [path + "su/govtctr-bl-gl-mbta-1.jpg"],
-                    address: "100 Hanover St, Boston, MA 02108",
-                    website: "https://www.mbta.com/stops/place-gover",
-                },
-                "park-street": {
-                    images: [path + "su/parkst-rl-gl-mbta-1.jpg"],
-                    address: "100 Tremont St, Boston, MA 02108",
-                    website: "https://www.mbta.com/stops/place-pktrm",
-                },
-            }
+            "blue-line": ["bowdoin", "government-center", "state"],
+            "orange-line": ["haymarket", "downtown-crossing", "state"],
+            "red-line": ["park-street"],
+            "green-line": ["government-center", "park-street"],
         },
     },
 ];
