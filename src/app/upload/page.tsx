@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import FileUpload from '@/components/FileUpload';
 import WeeklySchedule from '@/components/WeeklySchedule';
+import LiveStatus from '@/components/LiveStatus';
 import { parseScheduleFile, parseMeetingPattern } from '@/lib/funcs/parseExcel';
 import { ScheduleBlock } from '@/lib/types/schedule';
 import { getColorForClass } from '@/lib/funcs/colors';
@@ -12,6 +13,8 @@ export default function UploadPage() {
   const [scheduleBlocks, setScheduleBlocks] = useState<ScheduleBlock[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [fileName, setFileName] = useState<string>('');
+  const [currentTimeMinutes, setCurrentTimeMinutes] = useState<number | null>(null);
+  const [currentClassId, setCurrentClassId] = useState<string | null>(null);
   const { isAuthenticated } = useAuth();
 
   const handleFileSelect = async (file: File) => {
@@ -104,8 +107,19 @@ export default function UploadPage() {
               </div>
             </div>
 
+            {/* Live Status Component */}
+            <LiveStatus 
+              scheduleBlocks={scheduleBlocks}
+              onCurrentTimeUpdate={setCurrentTimeMinutes}
+              onCurrentClassUpdate={setCurrentClassId}
+            />
+
             <div className="bg-card p-6 rounded-lg border border-border">
-              <WeeklySchedule scheduleBlocks={scheduleBlocks} />
+              <WeeklySchedule 
+                scheduleBlocks={scheduleBlocks}
+                currentTimeMinutes={currentTimeMinutes}
+                currentClassId={currentClassId}
+              />
             </div>
           </div>
         )}

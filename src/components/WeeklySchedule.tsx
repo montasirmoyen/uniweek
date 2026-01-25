@@ -11,14 +11,20 @@ import { simplifyBuildingName, stripRoom } from '@/lib/funcs/buildings';
 
 interface WeeklyScheduleProps {
   scheduleBlocks: ScheduleBlock[];
+  currentTimeMinutes?: number | null;
+  currentClassId?: string | null;
 }
 
-export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) {
+export default function WeeklySchedule({ scheduleBlocks, currentTimeMinutes: propCurrentTimeMinutes, currentClassId: propCurrentClassId }: WeeklyScheduleProps) {
   const [selectedBlock, setSelectedBlock] = useState<ScheduleBlock | null>(null);
   const [showGapPanel, setShowGapPanel] = useState(false);
   const [hoveredBlock, setHoveredBlock] = useState<string | null>(null);
   const [gapBuildingKey, setGapBuildingKey] = useState<string | undefined>(undefined);
   const [gapMode, setGapMode] = useState<'free' | 'arrival-departure'>('free');
+
+  // Use prop values if provided, otherwise use state
+  const currentTimeMinutes = propCurrentTimeMinutes ?? null;
+  const currentClassId = propCurrentClassId ?? null;
 
   const university = UNIVERSITIES[0]; // Suffolk University
 
@@ -62,6 +68,11 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
     const minutesIntoHour = minsFromStart % 60;
     return fullHours * (HOUR_HEIGHT + BORDER_PX) + (minutesIntoHour / 60) * HOUR_HEIGHT;
   };
+
+  // Get current day for timeline
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const currentDay = dayNames[new Date().getDay()];
+  const currentDayIndex = DAYS_OF_WEEK.indexOf(currentDay as any);
 
   return (
     <div className="w-full overflow-x-auto">
@@ -125,10 +136,15 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
               const building = university.buildings?.[buildingKey];
               const buildingImage = building?.images?.[0];
 
+              // Check if this is the current class
+              const isCurrentClass = currentClassId === block.id && day === currentDay;
+
               return (
                 <div
                   key={`${block.id}-${day}`}
-                  className={`absolute ${block.color} text-white shadow-md cursor-pointer transition-all overflow-hidden group`}
+                  className={`absolute ${block.color} text-white shadow-md cursor-pointer transition-all overflow-hidden group ${
+                    isCurrentClass ? 'ring-2 ring-blue-400 ring-offset-2 ring-offset-background z-20' : ''
+                  }`}
                   style={{
                     top: `${top}px`,
                     left,
@@ -270,6 +286,21 @@ export default function WeeklySchedule({ scheduleBlocks }: WeeklyScheduleProps) 
                     }}
                   >
                     <p className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-200">Departure</p>
+
+          {/* Current time indicator line */}
+          {currentTimeMinutes !== null && currentDayIndex !== -1 && (
+            <div
+              className="absolute h-0.5 bg-red-500 shadow-lg z-30 pointer-events-none"
+              style={{
+                top: `${minutesToOffset(currentTimeMinutes - SCHEDULE_START)}px`,
+                left: `${((currentDayIndex + 1) / 8) * 100}%`,
+                width: `${(1 / 8) * 100}%`,
+              }}
+            >
+              {/* Red dot on the left edge */}
+              <div className="absolute -left-1 -top-1 w-2 h-2 bg-red-500 rounded-full" />
+            </div>
+          )}
                   </div>
                 )}
               </div>
