@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ScheduleBlock } from '@/lib/types/schedule';
 import { parseTime } from '@/lib/funcs/timeUtils';
+import { Pencil, Hourglass, PartyPopper, Candy } from 'lucide-react';
 
 interface LiveStatusProps {
   scheduleBlocks: ScheduleBlock[];
@@ -85,35 +86,35 @@ export default function LiveStatus({
   const remainingClasses = upcomingClasses.length;
 
   // Determine status message
-  const getStatusMessage = (): string => {
+  const getStatusData = (): [string, React.ReactNode] | string => {
     // Weekend or no classes
-    if (currentDay === 'Saturday' || currentDay === 'Sunday' || todayClasses.length === 0) {
-      return "You have no classes today";
+    if (todayClasses.length === 0) {
+      return ["You have no classes today", <PartyPopper />];
     }
 
     // Currently in class
     if (currentClass) {
       const courseName = extractCourseCode(currentClass.block.classData.courseName);
-      return `You're currently in ${courseName}`;
+      return [`You're currently in ${courseName}`, <Pencil />];
     }
 
     // All classes done
     if (remainingClasses === 0) {
-      return "Your day is done";
+      return ["You've finished all of your classes", <PartyPopper />];
     }
 
     // Next class is starting now (within 1 minute)
     if (minutesUntilNext !== null && minutesUntilNext <= 1) {
-      return "Your next class is starting now";
+      return ["Your next class is starting shortly", <Hourglass />];
     }
 
     // Free time before next class
     if (nextClass) {
       const nextStartTime = formatTime(nextClass.startMinutes);
-      return `Free until ${nextStartTime}`;
+      return [`Free until ${nextStartTime}`, <Candy />];
     }
 
-    return "No classes scheduled";
+    return ["No classes scheduled", null]; // Fallback
   };
 
   // Get secondary info
@@ -140,15 +141,18 @@ export default function LiveStatus({
     return null;
   };
 
-  const statusMessage = getStatusMessage();
+  // Get status data ex: ["You're currently in CS 101", <Pencil />]
+  const statusData = getStatusData();
   const secondaryInfo = getSecondaryInfo();
 
   // Determine status color
   const getStatusColor = (): string => {
-    if (currentClass) return 'text-blue-400';
-    if (remainingClasses === 0 && todayClasses.length > 0) return 'text-green-400';
-    if (minutesUntilNext !== null && minutesUntilNext <= 15) return 'text-yellow-400';
-    return 'text-muted-foreground';
+    if (todayClasses.length === 0) return 'text-green-300';
+    if (currentClass) return 'text-yellow-200';
+    if (remainingClasses === 0 && todayClasses.length > 0) return 'text-green-300';
+    if (minutesUntilNext !== null && minutesUntilNext <= 15) return 'text-teal-300';
+    if (minutesUntilNext !== null && minutesUntilNext <= 5) return 'text-yellow-500';
+    return 'text-white';
   };
 
   return (
@@ -166,8 +170,12 @@ export default function LiveStatus({
             
             {/* Status message */}
             <div className={`text-sm font-semibold ${getStatusColor()}`}>
-              {statusMessage}
+              {Array.isArray(statusData) ? statusData[0] : statusData}
             </div>
+
+            {Array.isArray(statusData) && statusData[1] != null && (
+                <div className={getStatusColor()}>{statusData[1]}</div>
+            )}
           </div>
 
           {/* Secondary info */}
@@ -180,7 +188,7 @@ export default function LiveStatus({
 
         {/* Current time */}
         <div className="text-right">
-          <div className="text-2xl font-bold font-mono tabular-nums">
+          <div className="text-3xl font-bold tabular-nums">
             {currentTime.toLocaleTimeString('en-US', { 
               hour: 'numeric', 
               minute: '2-digit',

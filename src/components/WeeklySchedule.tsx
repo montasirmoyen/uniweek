@@ -142,9 +142,8 @@ export default function WeeklySchedule({ scheduleBlocks, currentTimeMinutes: pro
               return (
                 <div
                   key={`${block.id}-${day}`}
-                  className={`absolute ${block.color} text-white shadow-md cursor-pointer transition-all overflow-hidden group ${
-                    isCurrentClass ? 'ring-2 ring-blue-400 ring-offset-2 ring-offset-background z-20' : ''
-                  }`}
+                  className={`absolute ${block.color} text-white shadow-md cursor-pointer transition-all overflow-hidden group ${isCurrentClass ? 'ring-2 ring-blue-400 ring-offset-2 ring-offset-background z-20' : ''
+                    }`}
                   style={{
                     top: `${top}px`,
                     left,
@@ -287,20 +286,20 @@ export default function WeeklySchedule({ scheduleBlocks, currentTimeMinutes: pro
                   >
                     <p className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-200">Departure</p>
 
-          {/* Current time indicator line */}
-          {currentTimeMinutes !== null && currentDayIndex !== -1 && (
-            <div
-              className="absolute h-0.5 bg-red-500 shadow-lg z-30 pointer-events-none"
-              style={{
-                top: `${minutesToOffset(currentTimeMinutes - SCHEDULE_START)}px`,
-                left: `${((currentDayIndex + 1) / 8) * 100}%`,
-                width: `${(1 / 8) * 100}%`,
-              }}
-            >
-              {/* Red dot on the left edge */}
-              <div className="absolute -left-1 -top-1 w-2 h-2 bg-red-500 rounded-full" />
-            </div>
-          )}
+                    {/* Current time indicator line */}
+                    {currentTimeMinutes !== null && currentDayIndex !== -1 && (
+                      <div
+                        className="absolute h-0.5 bg-red-500 shadow-lg z-30 pointer-events-none"
+                        style={{
+                          top: `${minutesToOffset(currentTimeMinutes - SCHEDULE_START)}px`,
+                          left: `${((currentDayIndex + 1) / 8) * 100}%`,
+                          width: `${(1 / 8) * 100}%`,
+                        }}
+                      >
+                        {/* Red dot on the left edge */}
+                        <div className="absolute -left-1 -top-1 w-2 h-2 bg-red-500 rounded-full" />
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
