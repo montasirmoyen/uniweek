@@ -111,20 +111,20 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
   // Calculate distances for MBTA stations if building coords available
   const mbtaStationsWithDistance = gapBuildingCoords
     ? filteredMbtaStations.map(({ line, stations }) => ({
-        line,
-        stations: stations
-          .map(({ stationName, stationData }) => {
-            const distance = stationData?.lngLat
-              ? getDistance(gapBuildingCoords[0], gapBuildingCoords[1], stationData.lngLat[0], stationData.lngLat[1])
-              : undefined;
-            return { stationName, stationData, distance };
-          })
-          .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity)),
-      }))
+      line,
+      stations: stations
+        .map(({ stationName, stationData }) => {
+          const distance = stationData?.lngLat
+            ? getDistance(gapBuildingCoords[0], gapBuildingCoords[1], stationData.lngLat[0], stationData.lngLat[1])
+            : undefined;
+          return { stationName, stationData, distance };
+        })
+        .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity)),
+    }))
     : filteredMbtaStations.map(({ line, stations }) => ({
-        line,
-        stations: stations.map(({ stationName, stationData }) => ({ stationName, stationData, distance: undefined })),
-      }));
+      line,
+      stations: stations.map(({ stationName, stationData }) => ({ stationName, stationData, distance: undefined })),
+    }));
 
   const filteredParkingGarages = nearestParkingKeys && university.parkingGarages
     ? university.parkingGarages
@@ -158,7 +158,7 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 bg-black/30 z-40 ${isClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
+        className={`fixed inset-0 bg-black/50 z-40 ${isClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
         onClick={handleClose}
       />
 
@@ -191,30 +191,30 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
                   {commonAreasWithDistance.map(({ key, data, distance }) => {
                     const buildingAddress = data?.location ? university.buildings?.[data.location]?.address : undefined;
                     return (
-                    <div key={key} className="border border-border rounded-lg overflow-hidden">
-                      <div className="bg-secondary px-3 py-2 flex items-center justify-between">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-secondary-foreground truncate">
-                            {formatName(key)}
-                            {distance !== undefined && <span className="ml-2 text-xs text-muted-foreground">({distance.toFixed(1)} mi)</span>}
-                          </p>
-                          {buildingAddress && (
-                            <p className="text-[11px] text-muted-foreground truncate">{buildingAddress}</p>
-                          )}
-                          {data?.description && (
-                            <p className="text-xs text-muted-foreground truncate">{data.description}</p>
-                          )}
-                        </div>
-                        <button className="px-3 py-1 text-xs bg-primary text-primary-foreground rounded-md shrink-0 w-24 text-center">I am here</button>
-                      </div>
-                      {data?.images?.length ? (
-                        <div className="p-2">
-                          <div className="relative aspect-video rounded overflow-hidden">
-                            <Image src={data.images[0]} alt={`${key} common area`} fill className="object-cover" />
+                      <div key={key} className="border border-border rounded-lg overflow-hidden">
+                        <div className="bg-secondary px-3 py-2 flex items-center justify-between">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-secondary-foreground truncate">
+                              {formatName(key)}
+                              {distance !== undefined && <span className="ml-2 text-xs text-muted-foreground">({distance.toFixed(1)} mi)</span>}
+                            </p>
+                            {buildingAddress && (
+                              <p className="text-[11px] text-muted-foreground truncate">{buildingAddress}</p>
+                            )}
+                            {data?.description && (
+                              <p className="text-xs text-muted-foreground truncate">{data.description}</p>
+                            )}
                           </div>
+                          <button className="px-3 py-1 text-xs bg-primary text-primary-foreground rounded-md shrink-0 w-24 text-center">I am here</button>
                         </div>
-                      ) : null}
-                    </div>
+                        {data?.images?.length ? (
+                          <div className="p-2">
+                            <div className="relative aspect-video rounded overflow-hidden">
+                              <Image src={data.images[0]} alt={`${key} common area`} fill className="object-cover" />
+                            </div>
+                          </div>
+                        ) : null}
+                      </div>
                     );
                   })}
                 </div>
@@ -231,34 +231,34 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
                       ? (isResidenceHall ? university.residenceHalls?.[locationKey]?.address : university.buildings?.[locationKey]?.address)
                       : undefined;
                     return (
-                    <div key={key} className="border border-border rounded-lg overflow-hidden">
-                      <div className="bg-secondary px-3 py-2 flex items-center justify-between">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-secondary-foreground truncate">
-                            {formatName(key)}
-                            {distance !== undefined && <span className="ml-2 text-xs text-muted-foreground">({distance.toFixed(1)} mi)</span>}
-                          </p>
-                          {locationAddress && (
-                            <p className="text-[11px] text-muted-foreground truncate">{locationAddress}</p>
-                          )}
-                          <p className="text-xs text-muted-foreground">{computeDiningType(data?.description)}</p>
-                          {data?.description && (
-                            <p className="text-xs text-muted-foreground truncate">{data.description}</p>
-                          )}
-                          {data?.residenceHall ? (
-                            <p className="text-[11px] text-amber-600">Located in a residence hall</p>
-                          ) : null}
-                        </div>
-                        <button className="px-3 py-1 text-xs bg-primary text-primary-foreground rounded-md shrink-0 w-24 text-center">I am here</button>
-                      </div>
-                      {data?.images?.length ? (
-                        <div className="p-2">
-                          <div className="relative aspect-video rounded overflow-hidden">
-                            <Image src={data.images[0]} alt={`${key} dining`} fill className="object-cover" />
+                      <div key={key} className="border border-border rounded-lg overflow-hidden">
+                        <div className="bg-secondary px-3 py-2 flex items-center justify-between">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-secondary-foreground truncate">
+                              {formatName(key)}
+                              {distance !== undefined && <span className="ml-2 text-xs text-muted-foreground">({distance.toFixed(1)} mi)</span>}
+                            </p>
+                            {locationAddress && (
+                              <p className="text-[11px] text-muted-foreground truncate">{locationAddress}</p>
+                            )}
+                            <p className="text-xs text-muted-foreground">{computeDiningType(data?.description)}</p>
+                            {data?.description && (
+                              <p className="text-xs text-muted-foreground truncate">{data.description}</p>
+                            )}
+                            {data?.residenceHall ? (
+                              <p className="text-[11px] text-amber-600">Located in a residence hall</p>
+                            ) : null}
                           </div>
+                          <button className="px-3 py-1 text-xs bg-primary text-primary-foreground rounded-md shrink-0 w-24 text-center">I am here</button>
                         </div>
-                      ) : null}
-                    </div>
+                        {data?.images?.length ? (
+                          <div className="p-2">
+                            <div className="relative aspect-video rounded overflow-hidden">
+                              <Image src={data.images[0]} alt={`${key} dining`} fill className="object-cover" />
+                            </div>
+                          </div>
+                        ) : null}
+                      </div>
                     );
                   })}
                 </div>
@@ -295,6 +295,7 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
                             {stationData?.address && (
                               <p className="text-[11px] text-muted-foreground truncate">{stationData.address}</p>
                             )}
+                            <a href={stationData.website} target="_blank" rel="noopener noreferrer" className="px-3 py-1 text-xs bg-primary text-primary-foreground rounded-md shrink-0 w-24 text-center">Visit Website</a>
                           </div>
                           {stationData?.images?.length ? (
                             <div className="p-2">
