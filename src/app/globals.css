@@ -28,13 +28,13 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --card: #18181b;
+    --background: #1a1a1a;
+    --foreground: #ffffff;
+    --card: #151515;
     --card-foreground: #fafafa;
-    --primary: #c0094c;
+    --primary: #008ea7;
     --primary-foreground: #ffffff;
-    --secondary: #27272a;
+    --secondary: #000000;
     --secondary-foreground: #fafafa;
     --muted: #27272a;
     --muted-foreground: #a1a1aa;
