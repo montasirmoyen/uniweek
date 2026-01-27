@@ -10,6 +10,20 @@ import { getColorForClass } from '@/lib/funcs/colors';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import Image from 'next/image';
 
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  
+  if (hour >= 5 && hour < 12) {
+    return 'Good morning';
+  } else if (hour >= 12 && hour < 15) {
+    return 'Good afternoon';
+  } else if (hour >= 15 && hour < 20) {
+    return 'Good evening';
+  } else {
+    return 'Good night';
+  }
+}
+
 export default function UploadPage() {
   const [scheduleBlocks, setScheduleBlocks] = useState<ScheduleBlock[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -96,7 +110,7 @@ export default function UploadPage() {
           <div>
             <div className="my-8">
               <h1 className="text-4xl font-bold text-foreground mb-2">
-                Good morning, {studentFirstName || 'Student'}!
+                {getGreeting()}, {studentFirstName || 'Student'}!
               </h1>
               <a className="text-muted-foreground hover:text-primary hover:underline" href="/settings">
                 Turn off personalized greetings here.
