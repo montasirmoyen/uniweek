@@ -9,6 +9,14 @@ import { ScheduleBlock } from '@/lib/types/schedule';
 import { getColorForClass } from '@/lib/funcs/colors';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import Image from 'next/image';
+import { X } from 'lucide-react';
+
+type AlertResponse = {
+  has_alert: boolean;
+  date?: string | null;
+  message?: string | null;
+  error?: string;
+};
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -29,9 +37,24 @@ export default function UploadPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [fileName, setFileName] = useState<string>('');
   const [studentFirstName, setStudentFirstName] = useState<string | null>(null);
+  const [alertData, setAlertData] = useState<AlertResponse | null>(null);
   const [currentTimeMinutes, setCurrentTimeMinutes] = useState<number | null>(null);
   const [currentClassId, setCurrentClassId] = useState<string | null>(null);
   const { isAuthenticated } = useAuth();
+
+  const fetchAlert = async () => {
+    try {
+      const res = await fetch('/api/suffolk-alert');
+      if (!res.ok) {
+        throw new Error(`Alert request failed with status ${res.status}`);
+      }
+      const data: AlertResponse = await res.json();
+      setAlertData(data);
+    } catch (error) {
+      console.error('Error fetching Suffolk alert:', error);
+      setAlertData(null);
+    }
+  };
 
   const handleFileSelect = async (file: File) => {
     setIsLoading(true);
@@ -57,6 +80,7 @@ export default function UploadPage() {
       });
 
       setScheduleBlocks(blocks);
+      await fetchAlert();
     } catch (error) {
       console.error('Error parsing file:', error);
       alert('Error parsing file. Please make sure it\'s a valid schedule file.');
@@ -69,6 +93,7 @@ export default function UploadPage() {
     setScheduleBlocks([]);
     setFileName('');
     setStudentFirstName(null);
+    setAlertData(null);
   };
 
   const handleSave = () => {
@@ -115,6 +140,17 @@ export default function UploadPage() {
                 Turn off personalized greetings here.
               </a>
             </div>
+
+            {alertData?.has_alert && alertData.message && (
+              <div className="mb-6 bg-red-500 border-2 border-white text-white rounded-lg p-4">
+              <div className="flex items-start justify-between mb-2">
+                <p className="text-sm font-semibold uppercase tracking-wide">Emergency Alert from Suffolk University</p>
+                <X className="cursor-pointer flex-shrink-0" size={20} onClick={() => setAlertData(null)} />
+              </div>
+              {alertData.date && <p className="text-sm text-white">{alertData.date}</p>}
+              <p className="mt-2">{alertData.message}</p>
+              </div>
+            )}
 
             {/* <div className="mb-6 flex items-center justify-between bg-card p-4 rounded-lg border border-border">
               <div>
