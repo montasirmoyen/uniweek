@@ -8,11 +8,13 @@ import { parseScheduleFile, parseMeetingPattern } from '@/lib/funcs/parseExcel';
 import { ScheduleBlock } from '@/lib/types/schedule';
 import { getColorForClass } from '@/lib/funcs/colors';
 import { useAuth } from '@/lib/contexts/AuthContext';
+import Image from 'next/image';
 
 export default function UploadPage() {
   const [scheduleBlocks, setScheduleBlocks] = useState<ScheduleBlock[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [fileName, setFileName] = useState<string>('');
+  const [studentFirstName, setStudentFirstName] = useState<string | null>(null);
   const [currentTimeMinutes, setCurrentTimeMinutes] = useState<number | null>(null);
   const [currentClassId, setCurrentClassId] = useState<string | null>(null);
   const { isAuthenticated } = useAuth();
@@ -20,15 +22,16 @@ export default function UploadPage() {
   const handleFileSelect = async (file: File) => {
     setIsLoading(true);
     setFileName(file.name);
-    
+
     try {
-      const classes = await parseScheduleFile(file);
+      const { classes, studentFirstName } = await parseScheduleFile(file);
+      setStudentFirstName(studentFirstName);
       const blocks: ScheduleBlock[] = [];
-      
+
       classes.forEach((classData, index) => {
         const meetingPatterns = parseMeetingPattern(classData.meetingPatterns);
         const color = getColorForClass(index);
-        
+
         meetingPatterns.forEach((pattern, patternIndex) => {
           blocks.push({
             id: `${index}-${patternIndex}`,
@@ -38,7 +41,7 @@ export default function UploadPage() {
           });
         });
       });
-      
+
       setScheduleBlocks(blocks);
     } catch (error) {
       console.error('Error parsing file:', error);
@@ -51,6 +54,7 @@ export default function UploadPage() {
   const handleReset = () => {
     setScheduleBlocks([]);
     setFileName('');
+    setStudentFirstName(null);
   };
 
   const handleSave = () => {
@@ -61,26 +65,43 @@ export default function UploadPage() {
   return (
     <div className="min-h-screen bg-background py-8 px-4">
       <div className="max-w-7xl mx-auto">
-        <header className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">
-            Upload Schedule
-          </h1>
-          <p className="text-muted-foreground">
-            Upload your .xlsx schedule file to view your weekly class schedule
-          </p>
+        <header className="flex items-start justify-between gap-8">
+          {scheduleBlocks.length === 0 && (
+            <div className="my-8">
+              <div>
+                <h1 className="text-4xl font-bold text-foreground mb-2">
+                  Upload Schedule
+                </h1>
+                <p className="text-muted-foreground">
+                  Upload your schedule's .xlsx file from Workday to view your weekly class schedule
+                </p>
+              </div>
+              <div className="flex flex-col items-center justify-center">
+                <FileUpload onFileSelect={handleFileSelect} />
+                {isLoading && (
+                  <p className="mt-4 text-muted-foreground">
+                    Loading schedule...
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
         </header>
 
-        {scheduleBlocks.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <FileUpload onFileSelect={handleFileSelect} />
-            {isLoading && (
-              <p className="mt-4 text-muted-foreground">
-                Loading schedule...
-              </p>
-            )}
-          </div>
-        ) : (
+        {scheduleBlocks.length === 0 && (
+          <Image src="/tutorial.png" alt="Tutorial on exporting schedule from Workday" width={1920} height={1080} />
+        )}
+
+        {scheduleBlocks.length !== 0 && (
           <div>
+            <div className="my-8">
+              <h1 className="text-4xl font-bold text-foreground mb-2">
+                Good morning, {studentFirstName || 'Student'}!
+              </h1>
+              <a className="text-muted-foreground hover:text-primary hover:underline" href="/settings">
+                Turn off personalized greetings here.
+              </a>
+            </div>
             <div className="mb-6 flex items-center justify-between bg-card p-4 rounded-lg border border-border">
               <div>
                 <p className="text-sm text-muted-foreground">Current file:</p>
@@ -100,7 +121,7 @@ export default function UploadPage() {
                 )}
                 <button
                   onClick={handleReset}
-                  className="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors"
+                  className="px-4 py-2 bg-primary text-secondary-foreground rounded-lg hover:bg-primary/80 transition-all"
                 >
                   Upload Different File
                 </button>
@@ -108,14 +129,14 @@ export default function UploadPage() {
             </div>
 
             {/* Live Status Component */}
-            <LiveStatus 
+            <LiveStatus
               scheduleBlocks={scheduleBlocks}
               onCurrentTimeUpdate={setCurrentTimeMinutes}
               onCurrentClassUpdate={setCurrentClassId}
             />
 
             <div className="bg-card p-6 rounded-lg border border-border">
-              <WeeklySchedule 
+              <WeeklySchedule
                 scheduleBlocks={scheduleBlocks}
                 currentTimeMinutes={currentTimeMinutes}
                 currentClassId={currentClassId}
