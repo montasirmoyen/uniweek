@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ScheduleBlock } from '@/lib/types/schedule';
 import { parseTime } from '@/lib/funcs/timeUtils';
-import { Pencil, Hourglass, PartyPopper, Candy } from 'lucide-react';
+import { Pencil, Hourglass, PartyPopper, Candy, Sofa } from 'lucide-react';
 
 interface LiveStatusProps {
     scheduleBlocks: ScheduleBlock[];
@@ -106,15 +106,23 @@ export default function LiveStatus({
             return ["You've finished all of your classes", <PartyPopper />];
         }
 
-        // Next class is starting now (within 5 minutes)
-        if (minutesUntilNext !== null && minutesUntilNext <= 5) {
-            return ["Your next class is starting shortly", <Hourglass />];
-        }
-
-        // Free time before next class
-        if (nextClass) {
+        // Upcoming class logic
+        if (nextClass && minutesUntilNext !== null) {
+            const isBeforeFirstClass = todayClasses.length === remainingClasses;
             const nextStartTime = formatTime(nextClass.startMinutes);
-            return [`Free until ${nextStartTime}`, <Candy />];
+
+            // Within the hour -> countdown
+            if (minutesUntilNext <= 30) {
+                return [`Class starts in ${minutesUntilNext} minutes`, <Hourglass />];
+            }
+
+            // Before first class of the day
+            if (isBeforeFirstClass) {
+                return [`First class starts ${nextStartTime}`, <Candy />];
+            }
+
+            // Between classes with a longer gap
+            return [`Free time until next class at ${nextStartTime}`, <Sofa />];
         }
 
         return ["No classes scheduled", null]; // Fallback
