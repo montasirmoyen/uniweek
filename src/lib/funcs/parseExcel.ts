@@ -1,12 +1,24 @@
 import * as XLSX from 'xlsx';
 import { ClassData, ParsedMeetingPattern } from '../types/schedule';
 
-export async function parseScheduleFile(file: File): Promise<ClassData[]> {
+export function extractStudentFirstName(classDesc: string): string | null {
+  // Match text before (UID...) pattern
+  const uidMatch = classDesc.match(/^(.*?)\s*\(UID\d+\)/);
+  if (uidMatch) {
+    const fullName = uidMatch[1].trim();
+    const firstName = fullName.split(' ')[0];
+    return firstName;
+  }
+  return null;
+}
+
+export async function parseScheduleFile(file: File): Promise<{ classes: ClassData[], studentFirstName: string | null }> {
   const arrayBuffer = await file.arrayBuffer();
   const workbook = XLSX.read(arrayBuffer, { type: 'array' });
   const worksheet = workbook.Sheets[workbook.SheetNames[0]];
   
   const classes: ClassData[] = [];
+  let studentFirstName: string | null = null;
   
   // Start from row 4 (index 3) and check up to row 20
   for (let row = 4; row <= 20; row++) {
@@ -14,6 +26,11 @@ export async function parseScheduleFile(file: File): Promise<ClassData[]> {
     
     // If class description is empty, we've reached the end
     if (!classDesc) break;
+    
+    // Try to extract student name from the first row that contains UID
+    if (!studentFirstName && classDesc.includes('UID')) {
+      studentFirstName = extractStudentFirstName(classDesc);
+    }
     
     const courseName = getCellValue(worksheet, `B${row}`);
     const rawSectionField = getCellValue(worksheet, `G${row}`);
@@ -36,7 +53,7 @@ export async function parseScheduleFile(file: File): Promise<ClassData[]> {
     classes.push(classData);
   }
   
-  return classes;
+  return { classes, studentFirstName };
 }
 
 function getCellValue(worksheet: XLSX.WorkSheet, cell: string): string {
