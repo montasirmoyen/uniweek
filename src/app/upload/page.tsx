@@ -12,7 +12,7 @@ import Image from 'next/image';
 
 function getGreeting(): string {
   const hour = new Date().getHours();
-  
+
   if (hour >= 5 && hour < 12) {
     return 'Good morning';
   } else if (hour >= 12 && hour < 15) {
@@ -81,29 +81,28 @@ export default function UploadPage() {
       <div className="max-w-7xl mx-auto">
         <header className="flex items-start justify-between gap-8">
           {scheduleBlocks.length === 0 && (
-            <div className="my-8">
+            <div className="my-8 flex items-start justify-between gap-8 w-full">
               <div>
                 <h1 className="text-4xl font-bold text-foreground mb-2">
                   Upload Schedule
                 </h1>
-                <p className="text-muted-foreground">
-                  Upload your schedule's .xlsx file from Workday to view your weekly class schedule
-                </p>
               </div>
               <div className="flex flex-col items-center justify-center">
                 <FileUpload onFileSelect={handleFileSelect} />
-                {isLoading && (
+                {/* {isLoading && (
                   <p className="mt-4 text-muted-foreground">
                     Loading schedule...
                   </p>
-                )}
+                )} */}
               </div>
             </div>
           )}
         </header>
 
         {scheduleBlocks.length === 0 && (
-          <Image src="/tutorial.png" alt="Tutorial on exporting schedule from Workday" width={1920} height={1080} />
+          <div className="bg-card rounded-lg p-8">
+            <Image src="/tutorial.png" alt="Tutorial on exporting schedule from Workday" width={1920} height={1080} />
+          </div>
         )}
 
         {scheduleBlocks.length !== 0 && (
@@ -116,7 +115,8 @@ export default function UploadPage() {
                 Turn off personalized greetings here.
               </a>
             </div>
-            <div className="mb-6 flex items-center justify-between bg-card p-4 rounded-lg border border-border">
+
+            {/* <div className="mb-6 flex items-center justify-between bg-card p-4 rounded-lg border border-border">
               <div>
                 <p className="text-sm text-muted-foreground">Current file:</p>
                 <p className="font-semibold text-card-foreground">{fileName}</p>
@@ -140,7 +140,7 @@ export default function UploadPage() {
                   Upload Different File
                 </button>
               </div>
-            </div>
+            </div> */}
 
             {/* Live Status Component */}
             <LiveStatus
