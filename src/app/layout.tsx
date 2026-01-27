@@ -3,6 +3,7 @@ import { Onest } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/contexts/AuthContext";
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 
 const onest = Onest({
   variable: "--font-onest",
@@ -28,6 +29,7 @@ export default function RootLayout({
         <AuthProvider>
           <Navigation />
           {children}
+          <Footer />
         </AuthProvider>
       </body>
     </html>
