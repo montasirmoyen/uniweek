@@ -163,7 +163,7 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
       />
 
       {/* Side Panel */}
-      <div className={`fixed top-0 right-0 h-full w-full md:w-[480px] bg-card shadow-2xl z-50 overflow-y-auto ${isClosing ? 'animate-slide-out' : 'animate-slide-in'}`}>
+      <div className={`fixed top-0 right-0 h-full w-full md:w-[480px] bg-background shadow-2xl z-50 overflow-y-auto ${isClosing ? 'animate-slide-out' : 'animate-slide-in'}`}>
         <div className="p-6">
           {/* Header */}
           <div className="flex justify-between items-start mb-6">
@@ -287,7 +287,7 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
                     <div className="space-y-3">
                       {stations.map(({ stationName, stationData, distance }) => (
                         <div key={stationName} className="border border-border rounded-lg overflow-hidden">
-                          <div className="bg-secondary px-3 py-2">
+                          <div className="bg-card px-3 py-2">
                             <p className="text-sm font-medium text-secondary-foreground capitalize">
                               {stationName.replace('-', ' ')}
                               {distance !== undefined && <span className="ml-2 text-xs text-muted-foreground">({distance.toFixed(1)} mi)</span>}

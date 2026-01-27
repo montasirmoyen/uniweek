@@ -75,7 +75,7 @@ export default function WeeklySchedule({ scheduleBlocks, currentTimeMinutes: pro
   const currentDayIndex = DAYS_OF_WEEK.indexOf(currentDay as any);
 
   return (
-    <div className="w-full overflow-x-auto">
+    <div className="w-full overflow-x-auto bg-card">
       <div className="min-w-[1000px]">
         {/* Header with days */}
         <div className="grid grid-cols-8 border-b border-border">
@@ -142,14 +142,13 @@ export default function WeeklySchedule({ scheduleBlocks, currentTimeMinutes: pro
               return (
                 <div
                   key={`${block.id}-${day}`}
-                  className={`absolute ${block.color} text-white shadow-md cursor-pointer transition-all overflow-hidden group ${isCurrentClass ? 'ring-2 ring-blue-400 ring-offset-2 ring-offset-background z-20' : ''
-                    }`}
+                  className={`absolute ${block.color} text-white shadow-md cursor-pointer transition-all overflow-hidden group ${isCurrentClass ? `ring-2 ring-${block.color} z-20` : ''}`}
                   style={{
-                    top: `${top}px`,
-                    left,
-                    width,
-                    height: `${height}px`,
-                    minHeight: '40px',
+                  top: `${top}px`,
+                  left,
+                  width,
+                  height: `${height}px`,
+                  minHeight: '40px',
                   }}
                   onClick={() => setSelectedBlock(block)}
                   onMouseEnter={() => setHoveredBlock(`${block.id}-${day}`)}
@@ -157,27 +156,27 @@ export default function WeeklySchedule({ scheduleBlocks, currentTimeMinutes: pro
                 >
                   {/* Building Background Image */}
                   {buildingImage && (
-                    <div className="absolute inset-0 opacity-50">
-                      <Image
-                        src={buildingImage}
-                        alt={buildingKey}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
+                  <div className="absolute inset-0 opacity-50">
+                    <Image
+                    src={buildingImage}
+                    alt={buildingKey}
+                    fill
+                    className="object-cover"
+                    />
+                  </div>
                   )}
 
                   {/* Content */}
                   <div className="relative bg-black/60 hover:bg-black/25 transition-all z-10 h-full flex flex-col justify-center items-center">
-                    <div className="text-xs font-semibold">
-                      {extractCourseCode(block.classData.courseName)}
-                    </div>
-                    <div className="text-xs">
-                      {simplifyBuildingName(block.meetingPattern.location)}
-                    </div>
-                    <div className="text-xs">
-                      {block.meetingPattern.startTime} - {block.meetingPattern.endTime}
-                    </div>
+                  <div className="text-xs font-semibold">
+                    {extractCourseCode(block.classData.courseName)}
+                  </div>
+                  <div className="text-xs">
+                    {simplifyBuildingName(block.meetingPattern.location)}
+                  </div>
+                  <div className="text-xs">
+                    {block.meetingPattern.startTime} - {block.meetingPattern.endTime}
+                  </div>
                   </div>
                 </div>
               );
@@ -285,21 +284,6 @@ export default function WeeklySchedule({ scheduleBlocks, currentTimeMinutes: pro
                     }}
                   >
                     <p className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-200">Departure</p>
-
-                    {/* Current time indicator line */}
-                    {currentTimeMinutes !== null && currentDayIndex !== -1 && (
-                      <div
-                        className="absolute h-0.5 bg-red-500 shadow-lg z-30 pointer-events-none"
-                        style={{
-                          top: `${minutesToOffset(currentTimeMinutes - SCHEDULE_START)}px`,
-                          left: `${((currentDayIndex + 1) / 8) * 100}%`,
-                          width: `${(1 / 8) * 100}%`,
-                        }}
-                      >
-                        {/* Red dot on the left edge */}
-                        <div className="absolute -left-1 -top-1 w-2 h-2 bg-red-500 rounded-full" />
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
