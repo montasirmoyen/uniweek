@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import FileUpload from '@/components/FileUpload';
+import { FileUpload, UseTestFile } from '@/components/FileUpload';
 import WeeklySchedule from '@/components/WeeklySchedule';
 import LiveStatus from '@/components/LiveStatus';
 import { parseScheduleFile, parseMeetingPattern } from '@/lib/funcs/parseExcel';
@@ -97,7 +97,7 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background py-8 px-4">
+    <div className="min-h-screen py-8 px-4">
       <div className="max-w-7xl mx-auto">
         <header className="flex items-start justify-between gap-8">
           {scheduleBlocks.length === 0 && (
@@ -107,13 +107,9 @@ export default function UploadPage() {
                   Upload Schedule
                 </h1>
               </div>
-              <div className="flex flex-col items-center justify-center">
+              <div className="flex flex-col items-center justify-center gap-6">
                 <FileUpload onFileSelect={handleFileSelect} />
-                {/* {isLoading && (
-                  <p className="mt-4 text-muted-foreground">
-                    Loading schedule...
-                  </p>
-                )} */}
+                <UseTestFile onFileSelect={handleFileSelect} />
               </div>
             </div>
           )}
@@ -148,12 +144,12 @@ export default function UploadPage() {
 
             {alertData?.has_alert && alertData.message && (
               <div className="mb-6 bg-red-500 border-2 border-white text-white rounded-lg p-4">
-              <div className="flex items-start justify-between mb-2">
-                <p className="text-sm font-semibold uppercase tracking-wide">Emergency Alert from Suffolk University</p>
-                <X className="cursor-pointer flex-shrink-0" size={20} onClick={() => setAlertData(null)} />
-              </div>
-              {alertData.date && <p className="text-sm text-white">{alertData.date}</p>}
-              <p className="mt-2">{alertData.message}</p>
+                <div className="flex items-start justify-between mb-2">
+                  <p className="text-sm font-semibold uppercase tracking-wide">Emergency Alert from Suffolk University</p>
+                  <X className="cursor-pointer flex-shrink-0" size={20} onClick={() => setAlertData(null)} />
+                </div>
+                {alertData.date && <p className="text-sm text-white">{alertData.date}</p>}
+                <p className="mt-2">{alertData.message}</p>
               </div>
             )}
 
