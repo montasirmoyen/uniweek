@@ -9,7 +9,7 @@ export default function Home() {
   const { isAuthenticated } = useAuth();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 px-4">
         <div className="max-w-6xl mx-auto">
@@ -43,7 +43,7 @@ export default function Home() {
       </section>
 
       {/* Untitled Section */}
-      <section className="py-16 px-4 bg-card">
+      <section className="py-16 px-4 ">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-center text-card-foreground mb-12">
             Features
@@ -104,7 +104,7 @@ export default function Home() {
 
 function UntitledCard({ title, description, icon }: { title: string; description: string; icon: ReactNode }) {
   return (
-    <div className="p-6 rounded-lg bg-background">
+    <div className="p-6 rounded-xl backdrop-blur bg-foreground/5">
       <div className="text-4xl mb-4 text-primary">{icon}</div>
       <h3 className="text-xl font-semibold text-foreground mb-2">{title}</h3>
       <p className="text-muted-foreground">{description}</p>
