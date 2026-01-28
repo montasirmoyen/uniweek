@@ -163,7 +163,7 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
       />
 
       {/* Side Panel */}
-      <div className={`fixed top-0 right-0 h-full w-full md:w-[480px] bg-background shadow-2xl z-50 overflow-y-auto ${isClosing ? 'animate-slide-out' : 'animate-slide-in'}`}>
+      <div className={`fixed top-0 right-0 h-full w-full md:w-[480px] bg-card shadow-2xl z-50 overflow-y-auto ${isClosing ? 'animate-slide-out' : 'animate-slide-in'}`}>
         <div className="p-6">
           {/* Header */}
           <div className="flex justify-between items-start mb-6">
@@ -205,7 +205,6 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
                               <p className="text-xs text-muted-foreground truncate">{data.description}</p>
                             )}
                           </div>
-                          <button className="px-3 py-1 text-xs bg-primary text-primary-foreground rounded-md shrink-0 w-24 text-center">I am here</button>
                         </div>
                         {data?.images?.length ? (
                           <div className="p-2">
@@ -249,7 +248,6 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
                               <p className="text-[11px] text-amber-600">Located in a residence hall</p>
                             ) : null}
                           </div>
-                          <button className="px-3 py-1 text-xs bg-primary text-primary-foreground rounded-md shrink-0 w-24 text-center">I am here</button>
                         </div>
                         {data?.images?.length ? (
                           <div className="p-2">
@@ -272,7 +270,7 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   placeholder="Add a note for this free time..."
-                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-[100px] resize-none"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-[100px] resize-none"
                 />
               </div>
             </>
@@ -290,14 +288,14 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
                           <div className="bg-secondary px-3 py-2 flex items-center justify-between">
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-secondary-foreground truncate">
-                            {stationName.replace('-', ' ')}
+                            {stationName.replace('-', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
                             {distance !== undefined && <span className="ml-2 text-xs text-muted-foreground">({distance.toFixed(1)} mi)</span>}
                             </p>
                             {stationData?.address && (
                             <p className="text-[11px] text-muted-foreground truncate">{stationData.address}</p>
                             )}
                           </div>
-                          <a href={stationData.website} target="_blank" rel="noopener noreferrer" className="px-3 py-1 text-xs bg-primary text-primary-foreground rounded-md shrink-0 w-24 text-center">Visit Website</a>
+                          <a href={stationData.website} target="_blank" rel="noopener noreferrer" className="px-3 py-1 text-xs bg-primary text-primary-foreground rounded-md shrink-0 w-24 text-center">View Map</a>
                           </div>
                           {stationData?.images?.length ? (
                           <div className="p-2">

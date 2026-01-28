@@ -78,7 +78,7 @@ export default function ClassDetailSidePanel({ block, onClose }: ClassDetailSide
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 bg-black/25 z-40 ${isClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
+        className={`fixed inset-0 bg-black/50 z-40 ${isClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
         onClick={handleClose}
       />
 
@@ -235,7 +235,7 @@ export default function ClassDetailSidePanel({ block, onClose }: ClassDetailSide
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Add a note about this class..."
-              className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-[100px] resize-none"
+              className="w-full px-3 py-2 border border-border rounded-md bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-[100px] resize-none"
             />
           </div>
 
