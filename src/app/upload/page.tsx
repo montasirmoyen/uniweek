@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FileUpload, UseTestFile } from '@/components/FileUpload';
 import WeeklySchedule from '@/components/WeeklySchedule';
 import LiveStatus from '@/components/LiveStatus';
@@ -8,6 +8,7 @@ import { parseScheduleFile, parseMeetingPattern } from '@/lib/funcs/parseExcel';
 import { ScheduleBlock } from '@/lib/types/schedule';
 import { getColorForClass } from '@/lib/funcs/colors';
 import { useAuth } from '@/lib/contexts/AuthContext';
+import { loadSchedule, saveSchedule } from '@/lib/firebase/db';
 import Image from 'next/image';
 import { X } from 'lucide-react';
 
@@ -40,7 +41,44 @@ export default function UploadPage() {
   const [alertData, setAlertData] = useState<AlertResponse | null>(null);
   const [currentTimeMinutes, setCurrentTimeMinutes] = useState<number | null>(null);
   const [currentClassId, setCurrentClassId] = useState<string | null>(null);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+
+  // Load saved schedule on mount for authenticated users
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      loadSavedSchedule();
+    }
+  }, [isAuthenticated, user]);
+
+  const loadSavedSchedule = async () => {
+    if (!user) return;
+    try {
+      const savedSchedule = await loadSchedule(user.id);
+      if (savedSchedule) {
+        setFileName(`Saved schedule (${savedSchedule.fileName})`);
+        const blocks: ScheduleBlock[] = [];
+        
+        savedSchedule.classes.forEach((classData, index) => {
+          const meetingPatterns = parseMeetingPattern(classData.meetingPatterns);
+          const color = getColorForClass(index);
+
+          meetingPatterns.forEach((pattern, patternIndex) => {
+            blocks.push({
+              id: `${index}-${patternIndex}`,
+              classData,
+              meetingPattern: pattern,
+              color,
+            });
+          });
+        });
+
+        setScheduleBlocks(blocks);
+        await fetchAlert();
+      }
+    } catch (error) {
+      console.error('Error loading saved schedule:', error);
+    }
+  };
 
   const fetchAlert = async () => {
     try {
@@ -80,6 +118,17 @@ export default function UploadPage() {
       });
 
       setScheduleBlocks(blocks);
+      
+      // Save to Firebase if authenticated
+      if (isAuthenticated && user) {
+        try {
+          await saveSchedule(user.id, classes, file.name);
+          console.log('Schedule saved to Firebase');
+        } catch (error) {
+          console.error('Error saving schedule to Firebase:', error);
+        }
+      }
+
       await fetchAlert();
     } catch (error) {
       console.error('Error parsing file:', error);

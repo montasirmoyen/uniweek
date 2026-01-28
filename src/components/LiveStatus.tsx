@@ -3,7 +3,10 @@
 import { useState, useEffect } from 'react';
 import { ScheduleBlock } from '@/lib/types/schedule';
 import { parseTime } from '@/lib/funcs/timeUtils';
-import { Pencil, Hourglass, PartyPopper, Candy, Sofa, Bed } from 'lucide-react';
+import { Pencil, Hourglass, PartyPopper, Candy, Sofa, Users, Bed } from 'lucide-react';
+import { useAuth } from '@/lib/contexts/AuthContext';
+import { markAttendance, unmarkAttendance, subscribeToAttendanceCount } from '@/lib/firebase/db';
+import type { ClassInstance } from '@/lib/firebase/types';
 
 interface LiveStatusProps {
     scheduleBlocks: ScheduleBlock[];
@@ -23,6 +26,9 @@ export default function LiveStatus({
     onCurrentClassUpdate
 }: LiveStatusProps) {
     const [currentTime, setCurrentTime] = useState(new Date());
+    const [attendanceCount, setAttendanceCount] = useState<number | null>(null);
+    const [isMarked, setIsMarked] = useState(false);
+    const { isAuthenticated, user } = useAuth();
 
     useEffect(() => {
         // Update every second
@@ -75,6 +81,54 @@ export default function LiveStatus({
             onCurrentClassUpdate(currentClassId);
         }
     }, [currentClassId, onCurrentClassUpdate]);
+
+    // Subscribe to attendance count for current class
+    useEffect(() => {
+        if (!currentClass) {
+            setAttendanceCount(null);
+            return;
+        }
+
+        const classInstance: ClassInstance = {
+            courseName: currentClass.block.classData.courseName,
+            section: currentClass.block.classData.section,
+            dayOfWeek: dayNames[currentTime.getDay()],
+            startTime: currentClass.block.meetingPattern.startTime,
+            endTime: currentClass.block.meetingPattern.endTime,
+            location: currentClass.block.meetingPattern.location,
+            createdAt: Date.now(),
+        };
+
+        const unsubscribe = subscribeToAttendanceCount(classInstance, setAttendanceCount);
+        return () => unsubscribe();
+    }, [currentClass, dayNames, currentTime]);
+
+    // Handle attendance marking
+    const handleToggleAttendance = async () => {
+        if (!isAuthenticated || !user || !currentClass) return;
+
+        const classInstance: ClassInstance = {
+            courseName: currentClass.block.classData.courseName,
+            section: currentClass.block.classData.section,
+            dayOfWeek: dayNames[currentTime.getDay()],
+            startTime: currentClass.block.meetingPattern.startTime,
+            endTime: currentClass.block.meetingPattern.endTime,
+            location: currentClass.block.meetingPattern.location,
+            createdAt: Date.now(),
+        };
+
+        try {
+            if (isMarked) {
+                await unmarkAttendance(user.id, classInstance);
+                setIsMarked(false);
+            } else {
+                await markAttendance(user.id, classInstance, user.name);
+                setIsMarked(true);
+            }
+        } catch (error) {
+            console.error('Error toggling attendance:', error);
+        }
+    };
 
     // Find next class
     const upcomingClasses = todayClasses.filter(
@@ -202,22 +256,46 @@ export default function LiveStatus({
                 </div>
 
                 {/* Current time */}
-                <div className="text-right">
-                    <div className="text-3xl font-bold tabular-nums">
-                        {currentTime.toLocaleTimeString('en-US', {
-                            hour: 'numeric',
-                            minute: '2-digit',
-                            second: '2-digit',
-                            hour12: true
-                        })}
+                <div className="text-right flex flex-col items-end gap-3">
+                    <div>
+                        <div className="text-3xl font-bold tabular-nums">
+                            {currentTime.toLocaleTimeString('en-US', {
+                                hour: 'numeric',
+                                minute: '2-digit',
+                                second: '2-digit',
+                                hour12: true
+                            })}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                            {currentTime.toLocaleDateString('en-US', {
+                                weekday: 'long',
+                                month: 'short',
+                                day: 'numeric'
+                            })}
+                        </div>
                     </div>
-                    <div className="text-xs text-muted-foreground">
-                        {currentTime.toLocaleDateString('en-US', {
-                            weekday: 'long',
-                            month: 'short',
-                            day: 'numeric'
-                        })}
-                    </div>
+
+                    {/* Attendance marker for current class */}
+                    {isAuthenticated && currentClass && (
+                        <div className="flex items-center gap-2">
+                            {attendanceCount !== null && (
+                                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                    <Users className="w-4 h-4" />
+                                    <span>{attendanceCount}</span>
+                                </div>
+                            )}
+                            <button
+                                onClick={handleToggleAttendance}
+                                className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                                    isMarked
+                                        ? 'bg-green-500 text-white'
+                                        : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                                }`}
+                            >
+                                {isMarked ? 'Marked' : 'Mark'}
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

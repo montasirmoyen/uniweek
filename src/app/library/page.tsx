@@ -4,52 +4,73 @@ import { useAuth } from '@/lib/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { loadSchedule, deleteSchedule } from '@/lib/firebase/db';
+import type { StoredSchedule } from '@/lib/firebase/types';
 
-interface SavedSchedule {
+interface ScheduleItem {
   id: string;
   name: string;
-  semester: string;
-  uploadDate: string;
+  uploadDate: Date;
   classCount: number;
+  data: StoredSchedule;
 }
 
 export default function LibraryPage() {
-  const { isAuthenticated, isGuest } = useAuth();
+  const { isAuthenticated, isGuest, user } = useAuth();
   const router = useRouter();
-  const [schedules, setSchedules] = useState<SavedSchedule[]>([]);
+  const [schedules, setSchedules] = useState<ScheduleItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (isGuest) {
       router.push('/');
-    } else {
-      // Simulate fetching saved schedules - no backend yet
-      setSchedules([
-        {
-          id: '1',
-          name: 'Fall 2025 Schedule',
-          semester: 'Fall 2025',
-          uploadDate: '2025-08-15',
-          classCount: 5,
-        },
-        {
-          id: '2',
-          name: 'Spring 2026 Schedule',
-          semester: 'Spring 2026',
-          uploadDate: '2026-01-10',
-          classCount: 6,
-        },
-      ]);
+    } else if (isAuthenticated && user) {
+      loadUserSchedules();
     }
-  }, [isGuest, router]);
+  }, [isGuest, router, isAuthenticated, user]);
 
-  if (isGuest) {
-    return null; // Will redirect
-  }
+  const loadUserSchedules = async () => {
+    if (!user) return;
+    setIsLoading(true);
+    try {
+      const savedSchedule = await loadSchedule(user.id);
+      if (savedSchedule) {
+        setSchedules([
+          {
+            id: 'current',
+            name: savedSchedule.fileName,
+            uploadDate: new Date(savedSchedule.uploadedAt),
+            classCount: savedSchedule.classes.length,
+            data: savedSchedule,
+          },
+        ]);
+      } else {
+        setSchedules([]);
+      }
+    } catch (error) {
+      console.error('Error loading schedules:', error);
+      setSchedules([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
+    if (!user) return;
     if (confirm('Are you sure you want to delete this schedule?')) {
-      setSchedules(schedules.filter(s => s.id !== id));
+      try {
+        await deleteSchedule(user.id);
+        setSchedules([]);
+      } catch (error) {
+        console.error('Error deleting schedule:', error);
+        alert('Failed to delete schedule');
+      }
     }
+  };
+
+  const handleView = (schedule: ScheduleItem) => {
+    // Navigate to upload page with schedule data
+    router.push('/upload');
   };
 
   return (
@@ -64,7 +85,11 @@ export default function LibraryPage() {
           </p>
         </header>
 
-        {schedules.length === 0 ? (
+        {isLoading ? (
+          <div className="text-center py-20">
+            <p className="text-muted-foreground">Loading schedules...</p>
+          </div>
+        ) : schedules.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-muted-foreground mb-4">
               You haven't saved any schedules yet.
@@ -87,13 +112,12 @@ export default function LibraryPage() {
                   {schedule.name}
                 </h3>
                 <div className="space-y-1 text-sm text-muted-foreground mb-4">
-                  <p>Semester: {schedule.semester}</p>
                   <p>Classes: {schedule.classCount}</p>
-                  <p>Uploaded: {new Date(schedule.uploadDate).toLocaleDateString()}</p>
+                  <p>Uploaded: {schedule.uploadDate.toLocaleDateString()}</p>
                 </div>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => alert('View functionality coming soon!')}
+                    onClick={() => handleView(schedule)}
                     className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-opacity text-sm"
                   >
                     View

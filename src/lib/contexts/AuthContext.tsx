@@ -1,6 +1,9 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { loginUser, registerUser, logoutUser, subscribeToAuthState, getCurrentUser } from '@/lib/firebase/auth';
+import { getUserProfile } from '@/lib/firebase/db';
+import type { User as FirebaseUser } from 'firebase/auth';
 
 interface User {
   id: string;
@@ -13,7 +16,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isGuest: boolean;
 }
 
@@ -21,29 +24,50 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Subscribe to Firebase auth state changes on mount
+  useEffect(() => {
+    const unsubscribe = subscribeToAuthState(async (firebaseUser: FirebaseUser | null) => {
+      if (firebaseUser) {
+        // User is logged in, get their profile
+        const profile = await getUserProfile(firebaseUser.uid);
+        setUser({
+          id: firebaseUser.uid,
+          email: firebaseUser.email || '',
+          name: profile?.firstName || firebaseUser.email?.split('@')[0] || 'User',
+        });
+      } else {
+        // User is logged out
+        setUser(null);
+      }
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const login = async (email: string, password: string) => {
-    // Simulate login - no actual backend
-    // In production, this would make an API call
-    await new Promise(resolve => setTimeout(resolve, 500));
+    const firebaseUser = await loginUser(email, password);
+    const profile = await getUserProfile(firebaseUser.uid);
     setUser({
-      id: '1',
-      email,
-      name: email.split('@')[0],
+      id: firebaseUser.uid,
+      email: firebaseUser.email || '',
+      name: profile?.firstName || email.split('@')[0],
     });
   };
 
   const register = async (email: string, password: string, name: string) => {
-    // Simulate registration - no actual backend
-    await new Promise(resolve => setTimeout(resolve, 500));
+    const firebaseUser = await registerUser(email, password, name);
     setUser({
-      id: '1',
-      email,
+      id: firebaseUser.uid,
+      email: firebaseUser.email || '',
       name,
     });
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await logoutUser();
     setUser(null);
   };
 
