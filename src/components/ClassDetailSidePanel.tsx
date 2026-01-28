@@ -142,7 +142,7 @@ export default function ClassDetailSidePanel({ block, onClose }: ClassDetailSide
           {professor && (
             <div className="mb-6 p-4 border border-border rounded-lg bg-secondary/30">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-card-foreground">RateMyProfessors Stats</h3>
+                <h3 className="text-md font-bold text-card-foreground">RateMyProfessors Stats</h3>
                 <a
                   href={"https://ram-ai.vercel.app/professor/" + professor.id}
                   target="_blank"
@@ -156,13 +156,13 @@ export default function ClassDetailSidePanel({ block, onClose }: ClassDetailSide
               <div className="space-y-3">
                 {/* Rating */}
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Overall Rating</span>
+                  <span className="text-sm font-bold">Overall Rating</span>
                   {renderStars(professor.rating)}
                 </div>
 
                 {/* Difficulty */}
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Difficulty</span>
+                  <span className="text-sm font-bold">Difficulty</span>
                   <div className="flex items-center gap-2">
                     <div className="w-32 h-2 bg-black rounded-full overflow-hidden">
                       <div
@@ -178,23 +178,31 @@ export default function ClassDetailSidePanel({ block, onClose }: ClassDetailSide
 
                 {/* Would Take Again */}
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Would Take Again</span>
-                  <span className="text-sm font-semibold text-white">
-                    {professor.wouldTakeAgainPercent.toFixed(0)}%
-                  </span>
+                  <span className="text-sm font-bold">Would Take Again</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-32 h-2 bg-black rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-white rounded-full transition-all"
+                        style={{ width: `${(professor.wouldTakeAgainPercent/100) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-sm font-semibold text-card-foreground min-w-[2rem] text-right">
+                      {professor.wouldTakeAgainPercent.toFixed(0)}%
+                    </span>
+                  </div>
                 </div>
 
                 {/* Top Tags */}
                 {professor.topTags && professor.topTags.length > 0 && (
                   <div className="pt-2">
-                    <span className="text-xs text-muted-foreground mb-2 block">Top Tags</span>
+                    <span className="text-md font-bold mb-2 block">Top Tags</span>
                     <div className="flex flex-wrap gap-1.5">
                       {professor.topTags.map((tag, idx) => {
                         const tagName = typeof tag === 'string' ? tag : tag.name;
                         return (
                           <span
                             key={idx}
-                            className="px-2 py-1 text-xs bg-secondary rounded-full"
+                            className="px-2 py-1 text-xs bg-background rounded-full"
                           >
                             {tagName}
                           </span>

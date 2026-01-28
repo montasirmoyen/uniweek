@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ScheduleBlock } from '@/lib/types/schedule';
 import { parseTime } from '@/lib/funcs/timeUtils';
-import { Pencil, Hourglass, PartyPopper, Candy, Sofa } from 'lucide-react';
+import { Pencil, Hourglass, PartyPopper, Candy, Sofa, Bed } from 'lucide-react';
 
 interface LiveStatusProps {
     scheduleBlocks: ScheduleBlock[];
@@ -92,7 +92,7 @@ export default function LiveStatus({
     const getStatusData = (): [string, React.ReactNode] | string => {
         // Weekend or no classes
         if (todayClasses.length === 0) {
-            return ["You have no classes today", <PartyPopper />];
+            return ["You have no classes today", <Bed />];
         }
 
         // Currently in class
@@ -118,11 +118,11 @@ export default function LiveStatus({
 
             // Before first class of the day
             if (isBeforeFirstClass) {
-                return [`First class starts ${nextStartTime}`, <Candy />];
+                return [`First class starts ${nextStartTime}`, <Sofa />];
             }
 
             // Between classes with a longer gap
-            return [`Free time until next class at ${nextStartTime}`, <Sofa />];
+            return [`Free time until next class at ${nextStartTime}`, <Candy />];
         }
 
         return ["No classes scheduled", null]; // Fallback
@@ -132,7 +132,7 @@ export default function LiveStatus({
     const getSecondaryInfo = (): string | null => {
         // Show class count only if there are classes today
         if (todayClasses.length > 0 && (currentDay !== 'Saturday' && currentDay !== 'Sunday')) {
-            return `Today you have ${todayClasses.length} class${todayClasses.length !== 1 ? 'es' : ''}, ${remainingClasses} left`;
+            return `You have ${remainingClasses} class${remainingClasses !== 1 ? 'es' : ''} remaining today, ${todayClasses.length} in total`;
         }
 
         // Show countdown to next class if applicable
@@ -158,12 +158,16 @@ export default function LiveStatus({
 
     // Calculate status color based on current state
     const statusColor = (() => {
-        if (todayClasses.length === 0) return 'text-green-300';
-        if (currentClass) return 'text-yellow-200';
-        if (remainingClasses === 0 && todayClasses.length > 0) return 'text-green-300';
-        if (minutesUntilNext !== null && minutesUntilNext <= 5) return 'text-orange-400';
-        if (minutesUntilNext !== null && minutesUntilNext <= 15) return 'text-teal-300';
-        return 'text-white';
+        if (todayClasses.length === 0) return 'text-green-300'; // nothing today
+        if (currentClass) return 'text-yellow-200'; // currently in class
+        if (remainingClasses === 0 && todayClasses.length > 0) return 'text-green-300'; // day done
+
+        if (minutesUntilNext !== null) {
+            if (minutesUntilNext <= 5) return 'text-orange-400'; // imminent
+            if (minutesUntilNext <= 30) return 'text-teal-300'; // upcoming soon (matches countdown window)
+        }
+
+        return 'text-pink-300'; // default for longer gaps/free time
     })();
 
     return (

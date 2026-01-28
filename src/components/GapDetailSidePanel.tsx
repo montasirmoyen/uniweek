@@ -287,22 +287,24 @@ export default function GapDetailSidePanel({ onClose, buildingKey, mode = 'free'
                     <div className="space-y-3">
                       {stations.map(({ stationName, stationData, distance }) => (
                         <div key={stationName} className="border border-border rounded-lg overflow-hidden">
-                          <div className="bg-card px-3 py-2">
-                            <p className="text-sm font-medium text-secondary-foreground capitalize">
-                              {stationName.replace('-', ' ')}
-                              {distance !== undefined && <span className="ml-2 text-xs text-muted-foreground">({distance.toFixed(1)} mi)</span>}
+                          <div className="bg-secondary px-3 py-2 flex items-center justify-between">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-secondary-foreground truncate">
+                            {stationName.replace('-', ' ')}
+                            {distance !== undefined && <span className="ml-2 text-xs text-muted-foreground">({distance.toFixed(1)} mi)</span>}
                             </p>
                             {stationData?.address && (
-                              <p className="text-[11px] text-muted-foreground truncate">{stationData.address}</p>
+                            <p className="text-[11px] text-muted-foreground truncate">{stationData.address}</p>
                             )}
-                            <a href={stationData.website} target="_blank" rel="noopener noreferrer" className="px-3 py-1 text-xs bg-primary text-primary-foreground rounded-md shrink-0 w-24 text-center">Visit Website</a>
+                          </div>
+                          <a href={stationData.website} target="_blank" rel="noopener noreferrer" className="px-3 py-1 text-xs bg-primary text-primary-foreground rounded-md shrink-0 w-24 text-center">Visit Website</a>
                           </div>
                           {stationData?.images?.length ? (
-                            <div className="p-2">
-                              <div className="relative aspect-video rounded overflow-hidden">
-                                <Image src={stationData.images[0]} alt={`${stationName} station`} fill className="object-cover" />
-                              </div>
+                          <div className="p-2">
+                            <div className="relative aspect-video rounded overflow-hidden">
+                            <Image src={stationData.images[0]} alt={`${stationName} station`} fill className="object-cover" />
                             </div>
+                          </div>
                           ) : null}
                         </div>
                       ))}
