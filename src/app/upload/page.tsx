@@ -96,11 +96,6 @@ export default function UploadPage() {
     setAlertData(null);
   };
 
-  const handleSave = () => {
-    // Simulate save - no backend yet
-    alert('Schedule saved successfully! (This is a UI demo - no actual save occurred)');
-  };
-
   return (
     <div className="min-h-screen bg-background py-8 px-4">
       <div className="max-w-7xl mx-auto">
@@ -132,13 +127,23 @@ export default function UploadPage() {
 
         {scheduleBlocks.length !== 0 && (
           <div>
-            <div className="my-8">
-              <h1 className="text-4xl font-bold text-foreground mb-2">
-                {getGreeting()}, {studentFirstName || 'Student'}!
-              </h1>
-              <a className="text-muted-foreground hover:text-primary hover:underline" href="/settings">
-                Turn off personalized greetings here.
-              </a>
+            <div className="my-8 flex items-center justify-between">
+              <div>
+                <h1 className="text-4xl font-bold text-foreground mb-2">
+                  {getGreeting()}, {studentFirstName || 'Student'}!
+                </h1>
+                <a className="text-muted-foreground hover:text-primary hover:underline" href="/settings">
+                  Turn off personalized greetings here.
+                </a>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleReset}
+                  className="px-4 py-2 bg-primary text-secondary-foreground rounded-lg hover:bg-primary/80 transition-all"
+                >
+                  Change Schedule
+                </button>
+              </div>
             </div>
 
             {alertData?.has_alert && alertData.message && (
