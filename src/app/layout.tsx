@@ -12,7 +12,7 @@ const onest = Onest({
 
 export const metadata: Metadata = {
   title: "UniWeek - Schedule Organizer",
-  description: "Organize and maximize your class schedule",
+  description: "Organize your class schedule",
 };
 
 export default function RootLayout({
