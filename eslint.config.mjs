@@ -2,6 +2,8 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+/* eslint-disable react/no-unescaped-entities */
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
