@@ -134,14 +134,16 @@ export default function LibraryPage() {
           </div>
         )}
 
-        <div className="mt-8 text-center">
-          <Link
-            href="/upload"
-            className="inline-block px-6 py-3 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors"
-          >
-            Upload New Schedule
-          </Link>
-        </div>
+        {schedules.length != 0 && (
+          <div className="mt-8 text-center">
+            <Link
+              href="/upload"
+              className="inline-block px-6 py-3 bg-primary text-foreground rounded-lg hover:bg-primary/80 transition-colors"
+            >
+              Upload New Schedule
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );

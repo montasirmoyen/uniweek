@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/lib/contexts/AuthContext';
-import { Calendar, School, Save } from 'lucide-react';
+import { Calendar, Pencil, Save } from 'lucide-react';
 import { ReactNode } from 'react';
 
 export default function Home() {
@@ -20,7 +20,7 @@ export default function Home() {
               <span className="text-primary">Simplified</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Organize and visualize your university schedule with ease, while staying up to date with other students.
+              Organize and visualize your university schedule with ease.
             </p>
             <div className="flex gap-4 justify-center">
               <Link
@@ -55,9 +55,9 @@ export default function Home() {
               icon={<Calendar className="h-12 w-12" />}
             />
             <UntitledCard
-              title="Unity"
-              description="Know how many people plan to attend your classes."
-              icon={<School className="h-12 w-12" />}
+              title="Organization"
+              description="Keep your week flowing with suggestions for study spots and transportation."
+              icon={<Pencil className="h-12 w-12" />}
             />
             <UntitledCard
               title="Persistence"

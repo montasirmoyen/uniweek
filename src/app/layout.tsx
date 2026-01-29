@@ -10,7 +10,6 @@ const onest = Onest({
   subsets: ["latin"],
 });
 
-
 export const metadata: Metadata = {
   title: "UniWeek - Schedule Organizer",
   description: "Organize and maximize your class schedule",
