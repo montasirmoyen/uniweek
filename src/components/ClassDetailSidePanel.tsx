@@ -238,17 +238,6 @@ export default function ClassDetailSidePanel({ block, onClose }: ClassDetailSide
               className="w-full px-3 py-2 border border-border rounded-md bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-[100px] resize-none"
             />
           </div>
-
-          {/* Attendance Button */}
-          <button
-            onClick={() => setIsAttending(!isAttending)}
-            className={`w-full py-3 rounded-md font-semibold transition-colors ${isAttending
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-              }`}
-          >
-            {isAttending ? '✓ I am attending' : 'I am attending'}
-          </button>
         </div>
       </div>
     </>
