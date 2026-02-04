@@ -39,9 +39,6 @@ export default function PrivacyPolicyPage() {
                         <li>Display your schedule</li>
                         <li>(Optionally) show a personalized greeting using your first name only</li>
                     </ul>
-                    <p className="mt-3 italic">
-                        You can turn off personalized greetings at any time.
-                    </p>
                     <p className="mt-1 italic">
                         We never use your university ID in our app.
                     </p>

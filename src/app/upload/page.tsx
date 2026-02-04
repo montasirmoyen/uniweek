@@ -177,9 +177,6 @@ export default function UploadPage() {
                 <h1 className="text-4xl font-bold text-foreground mb-2">
                   {getGreeting()}, {studentFirstName || 'Student'}!
                 </h1>
-                <a className="text-muted-foreground hover:text-primary hover:underline" href="/settings">
-                  Turn off personalized greetings here.
-                </a>
               </div>
               <div className="flex gap-3">
                 <button
