@@ -1,8 +1,4 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# local notes
-todo.md
-notes.md
+.env
 
 # dependencies
 /node_modules
@@ -32,13 +28,10 @@ notes.md
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
+pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
-.vercel
+# env files
+.env*.local
 
 # typescript
 *.tsbuildinfo
