@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { Building2, Clock3, Navigation, TrainFront, UtensilsCrossed } from "lucide-react";
 
@@ -166,7 +166,7 @@ export default function WeeklySchedule({ scheduleBlocks, currentClassId }: Weekl
               <button
                 type="button"
                 key={item.key}
-                className="absolute z-20 overflow-hidden rounded-md border border-white/20 text-left text-white shadow-md transition hover:scale-[1.01]"
+                className="absolute z-20 overflow-hidden text-left text-white shadow-md transition hover:scale-105"
                 style={{
                   left,
                   top: `${item.top}px`,
@@ -207,16 +207,12 @@ export default function WeeklySchedule({ scheduleBlocks, currentClassId }: Weekl
               <button
                 type="button"
                 key={`${gap.day}-${gap.start}-${gap.end}`}
-                className="absolute z-10 flex items-center justify-center text-[11px] text-muted-foreground transition"
+                className="absolute z-10 flex items-center justify-center text-[11px] text-muted-foreground transition bg-muted/25 hover:bg-muted/50"
                 style={{ left, width, top: `${top}px`, height: `${height}px` }}
                 onClick={() => setSelectedGap(gap)}
               >
                 <span
-                  className={`rounded px-2 py-1 ${
-                    gap.mode === "free"
-                      ? "bg-accent/45 hover:bg-accent/60"
-                      : "bg-secondary/70 hover:bg-secondary"
-                  }`}
+                  className="rounded px-2 py-1"
                 >
                   {gap.label}
                 </span>
@@ -235,10 +231,28 @@ export default function WeeklySchedule({ scheduleBlocks, currentClassId }: Weekl
 function ClassDetailPanel({ block, onClose }: { block: ScheduleBlock | null; onClose: () => void }) {
   if (!block) return null;
 
+  const [open, setOpen] = useState(true);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const startClose = () => {
+    setOpen(false);
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = setTimeout(() => {
+      onClose();
+    }, 220);
+  };
+
+  useEffect(() => {
+    setOpen(true);
+    return () => {
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    };
+  }, [block.id]);
+
   const building = getBuildingInfo(block.meetingPattern.location);
 
   return (
-    <Sheet open onOpenChange={(open) => !open && onClose()}>
+    <Sheet open={open} onOpenChange={(nextOpen) => !nextOpen && startClose()}>
       <SheetContent className="w-full overflow-hidden sm:max-w-lg">
         <SheetHeader>
           <SheetTitle>{extractCourseCode(block.classData.courseName)}</SheetTitle>
@@ -266,6 +280,24 @@ function ClassDetailPanel({ block, onClose }: { block: ScheduleBlock | null; onC
 
 function GapDetailPanel({ gap, onClose }: { gap: GapInfo | null; onClose: () => void }) {
   if (!gap) return null;
+
+  const [open, setOpen] = useState(true);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const startClose = () => {
+    setOpen(false);
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = setTimeout(() => {
+      onClose();
+    }, 220);
+  };
+
+  useEffect(() => {
+    setOpen(true);
+    return () => {
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    };
+  }, [gap.day, gap.start, gap.end, gap.label]);
 
   const university = UNIVERSITIES[0];
   const building = gap.buildingKey ? university.buildings?.[gap.buildingKey] : undefined;
@@ -301,7 +333,7 @@ function GapDetailPanel({ gap, onClose }: { gap: GapInfo | null; onClose: () => 
   }).filter((x): x is NonNullable<typeof x> => x !== null);
 
   return (
-    <Sheet open onOpenChange={(open) => !open && onClose()}>
+    <Sheet open={open} onOpenChange={(nextOpen) => !nextOpen && startClose()}>
       <SheetContent className="w-full overflow-hidden sm:max-w-lg">
         <SheetHeader>
           <SheetTitle>{gap.mode === "free" ? "Gap Explorer" : "Arrival & Departure"}</SheetTitle>
@@ -378,7 +410,7 @@ function GapDetailPanel({ gap, onClose }: { gap: GapInfo | null; onClose: () => 
             </section>
           )}
 
-          <Button type="button" variant="outline" className="w-full" onClick={onClose}>Close</Button>
+          <Button type="button" variant="outline" className="w-full" onClick={startClose}>Close</Button>
         </div>
       </SheetContent>
     </Sheet>
