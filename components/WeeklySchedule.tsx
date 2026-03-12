@@ -11,7 +11,6 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 import { parseTime } from "@/lib/funcs/timeUtils";
 import { simplifyBuildingName, stripRoom } from "@/lib/funcs/buildings";
@@ -30,11 +29,15 @@ interface GapInfo {
   day: string;
   start: number;
   end: number;
+  label: "Free Time" | "Arrival" | "Departure";
+  mode: "free" | "arrival-departure";
   buildingKey?: string;
 }
 
 const HOUR_HEIGHT = 64;
 const SCHEDULE_START = 6 * 60;
+const SCHEDULE_END = 24 * 60;
+const ARRIVAL_DEPARTURE_WINDOW = 2 * 60;
 
 export default function WeeklySchedule({ scheduleBlocks, currentClassId }: WeeklyScheduleProps) {
   const [selectedBlock, setSelectedBlock] = useState<ScheduleBlock | null>(null);
@@ -85,6 +88,21 @@ export default function WeeklySchedule({ scheduleBlocks, currentClassId }: Weekl
       if (!dayBlocks.length) return [];
 
       const gaps: GapInfo[] = [];
+      const firstBlock = dayBlocks[0];
+      const lastBlock = dayBlocks[dayBlocks.length - 1];
+
+      const arrivalStart = Math.max(SCHEDULE_START, firstBlock.start - ARRIVAL_DEPARTURE_WINDOW);
+      if (firstBlock.start > arrivalStart) {
+        gaps.push({
+          day,
+          start: arrivalStart,
+          end: firstBlock.start,
+          label: "Arrival",
+          mode: "arrival-departure",
+          buildingKey: extractBuildingKey(firstBlock.block.meetingPattern.location),
+        });
+      }
+
       for (let i = 0; i < dayBlocks.length - 1; i += 1) {
         const current = dayBlocks[i];
         const next = dayBlocks[i + 1];
@@ -93,9 +111,23 @@ export default function WeeklySchedule({ scheduleBlocks, currentClassId }: Weekl
             day,
             start: current.end,
             end: next.start,
+            label: "Free Time",
+            mode: "free",
             buildingKey: extractBuildingKey(current.block.meetingPattern.location),
           });
         }
+      }
+
+      const departureEnd = Math.min(SCHEDULE_END, lastBlock.end + ARRIVAL_DEPARTURE_WINDOW);
+      if (departureEnd > lastBlock.end) {
+        gaps.push({
+          day,
+          start: lastBlock.end,
+          end: departureEnd,
+          label: "Departure",
+          mode: "arrival-departure",
+          buildingKey: extractBuildingKey(lastBlock.block.meetingPattern.location),
+        });
       }
 
       return gaps;
@@ -175,11 +207,19 @@ export default function WeeklySchedule({ scheduleBlocks, currentClassId }: Weekl
               <button
                 type="button"
                 key={`${gap.day}-${gap.start}-${gap.end}`}
-                className="absolute z-10 flex items-center justify-center bg-accent/35 text-[11px] text-muted-foreground transition hover:bg-accent/55"
+                className="absolute z-10 flex items-center justify-center text-[11px] text-muted-foreground transition"
                 style={{ left, width, top: `${top}px`, height: `${height}px` }}
                 onClick={() => setSelectedGap(gap)}
               >
-                Free Time
+                <span
+                  className={`rounded px-2 py-1 ${
+                    gap.mode === "free"
+                      ? "bg-accent/45 hover:bg-accent/60"
+                      : "bg-secondary/70 hover:bg-secondary"
+                  }`}
+                >
+                  {gap.label}
+                </span>
               </button>
             );
           })}
@@ -199,13 +239,13 @@ function ClassDetailPanel({ block, onClose }: { block: ScheduleBlock | null; onC
 
   return (
     <Sheet open onOpenChange={(open) => !open && onClose()}>
-      <SheetContent className="w-full sm:max-w-lg">
+      <SheetContent className="w-full overflow-hidden sm:max-w-lg">
         <SheetHeader>
           <SheetTitle>{extractCourseCode(block.classData.courseName)}</SheetTitle>
           <SheetDescription>{block.classData.courseName}</SheetDescription>
         </SheetHeader>
 
-        <div className="space-y-4 px-4 pb-6 text-sm">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 pb-6 text-sm">
           {building?.images?.[0] && (
             <div className="relative aspect-video overflow-hidden rounded-lg border border-border">
               <Image src={building.images[0]} alt={building.fullName} fill className="object-cover" />
@@ -231,7 +271,7 @@ function GapDetailPanel({ gap, onClose }: { gap: GapInfo | null; onClose: () => 
   const building = gap.buildingKey ? university.buildings?.[gap.buildingKey] : undefined;
   const coords = building?.lngLat;
 
-  const nearbyDining = (building?.["nearest-dining-halls"] ?? []).slice(0, 3).map((key) => {
+  const nearbyDining = (building?.["nearest-dining-halls"] ?? []).slice(0, 4).map((key) => {
     const item = university.diningHallsAndCafes?.[key];
     if (!item) return null;
     const location = item.residenceHall
@@ -241,14 +281,19 @@ function GapDetailPanel({ gap, onClose }: { gap: GapInfo | null; onClose: () => 
     return { key, item, miles };
   }).filter((x): x is NonNullable<typeof x> => x !== null);
 
-  const nearbyStations = Object.values(university.mbtaStations ?? {}).flat().slice(0, 3).map((stationKey) => {
+  const stationKeys = Object.values(building?.["nearest-mbta"] ?? university.mbtaStations ?? {})
+    .flat()
+    .filter((value, index, array) => array.indexOf(value) === index)
+    .slice(0, 4);
+
+  const nearbyStations = stationKeys.map((stationKey) => {
     const station = MBTA_STATIONS[stationKey];
     if (!station) return null;
     const miles = coords && station.lngLat ? getDistance(coords[0], coords[1], station.lngLat[0], station.lngLat[1]) : null;
     return { stationKey, station, miles };
   }).filter((x): x is NonNullable<typeof x> => x !== null);
 
-  const nearbyParking = (building?.["nearest-parking"] ?? []).slice(0, 2).map((garageKey) => {
+  const nearbyParking = (building?.["nearest-parking"] ?? []).slice(0, 4).map((garageKey) => {
     const garage = PARKING_GARAGES[garageKey];
     if (!garage) return null;
     const miles = coords && garage.lngLat ? getDistance(coords[0], coords[1], garage.lngLat[0], garage.lngLat[1]) : null;
@@ -257,40 +302,56 @@ function GapDetailPanel({ gap, onClose }: { gap: GapInfo | null; onClose: () => 
 
   return (
     <Sheet open onOpenChange={(open) => !open && onClose()}>
-      <SheetContent className="w-full sm:max-w-lg">
+      <SheetContent className="w-full overflow-hidden sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle>Gap Explorer</SheetTitle>
+          <SheetTitle>{gap.mode === "free" ? "Gap Explorer" : "Arrival & Departure"}</SheetTitle>
           <SheetDescription>
             {formatTime(gap.start)} - {formatTime(gap.end)} on {gap.day}
           </SheetDescription>
         </SheetHeader>
 
-        <div className="space-y-5 px-4 pb-6 text-sm">
-          <section>
-            <h4 className="mb-2 flex items-center gap-2 font-semibold"><UtensilsCrossed className="size-4" /> Nearby Dining</h4>
-            <div className="space-y-2">
-              {nearbyDining.length === 0 && <p className="text-muted-foreground">No dining suggestions found.</p>}
-              {nearbyDining.map(({ key, miles }) => (
-                <div key={key} className="rounded-md border border-border p-2">
-                  <p className="font-medium">{toTitle(key)}</p>
-                  <p className="text-xs text-muted-foreground">{miles === null ? "Distance unavailable" : `${miles.toFixed(2)} mi away`}</p>
-                </div>
-              ))}
-            </div>
-          </section>
+        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-4 pb-6 text-sm">
+          {gap.mode === "free" && (
+            <section>
+              <h4 className="mb-2 flex items-center gap-2 font-semibold"><UtensilsCrossed className="size-4" /> Nearby Dining</h4>
+              <div className="space-y-2">
+                {nearbyDining.length === 0 && <p className="text-muted-foreground">No dining suggestions found.</p>}
+                {nearbyDining.map(({ key, item, miles }) => (
+                  <div key={key} className="overflow-hidden rounded-md border border-border">
+                    {item.images?.[0] && (
+                      <div className="relative aspect-video border-b border-border">
+                        <Image src={item.images[0]} alt={toTitle(key)} fill className="object-cover" />
+                      </div>
+                    )}
+                    <div className="p-2">
+                      <p className="font-medium">{toTitle(key)}</p>
+                      <p className="text-xs text-muted-foreground">{miles === null ? "Distance unavailable" : `${miles.toFixed(2)} mi away`}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           <section>
             <h4 className="mb-2 flex items-center gap-2 font-semibold"><TrainFront className="size-4" /> MBTA</h4>
             <div className="space-y-2">
               {nearbyStations.map(({ stationKey, station, miles }) => (
-                <div key={stationKey} className="rounded-md border border-border p-2">
-                  <p className="font-medium">{toTitle(stationKey)}</p>
-                  <p className="text-xs text-muted-foreground">{miles === null ? "Distance unavailable" : `${miles.toFixed(2)} mi away`}</p>
-                  {station.website && (
-                    <a href={station.website} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs text-primary hover:underline">
-                      Open map
-                    </a>
+                <div key={stationKey} className="overflow-hidden rounded-md border border-border">
+                  {station.images?.[0] && (
+                    <div className="relative aspect-video border-b border-border">
+                      <Image src={station.images[0]} alt={toTitle(stationKey)} fill className="object-cover" />
+                    </div>
                   )}
+                  <div className="p-2">
+                    <p className="font-medium">{toTitle(stationKey)}</p>
+                    <p className="text-xs text-muted-foreground">{miles === null ? "Distance unavailable" : `${miles.toFixed(2)} mi away`}</p>
+                    {station.website && (
+                      <a href={station.website} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs text-primary hover:underline">
+                        Open map
+                      </a>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -300,17 +361,24 @@ function GapDetailPanel({ gap, onClose }: { gap: GapInfo | null; onClose: () => 
             <section>
               <h4 className="mb-2 font-semibold">Parking</h4>
               <div className="space-y-2">
-                {nearbyParking.map(({ garageKey, miles }) => (
-                  <div key={garageKey} className="rounded-md border border-border p-2">
-                    <p className="font-medium">{toTitle(garageKey)}</p>
-                    <p className="text-xs text-muted-foreground">{miles === null ? "Distance unavailable" : `${miles.toFixed(2)} mi away`}</p>
+                {nearbyParking.map(({ garageKey, garage, miles }) => (
+                  <div key={garageKey} className="overflow-hidden rounded-md border border-border">
+                    {garage.images?.[0] && (
+                      <div className="relative aspect-video border-b border-border">
+                        <Image src={garage.images[0]} alt={toTitle(garageKey)} fill className="object-cover" />
+                      </div>
+                    )}
+                    <div className="p-2">
+                      <p className="font-medium">{toTitle(garageKey)}</p>
+                      <p className="text-xs text-muted-foreground">{miles === null ? "Distance unavailable" : `${miles.toFixed(2)} mi away`}</p>
+                    </div>
                   </div>
                 ))}
               </div>
             </section>
           )}
 
-          <SheetTrigger render={<Button variant="outline" className="w-full" />}>Close</SheetTrigger>
+          <Button type="button" variant="outline" className="w-full" onClick={onClose}>Close</Button>
         </div>
       </SheetContent>
     </Sheet>
