@@ -207,7 +207,7 @@ export default function WeeklySchedule({ scheduleBlocks, currentClassId }: Weekl
               <button
                 type="button"
                 key={`${gap.day}-${gap.start}-${gap.end}`}
-                className="absolute z-10 flex items-center justify-center text-[11px] text-muted-foreground transition bg-muted/25 hover:bg-muted/50"
+                className="absolute z-10 flex items-center justify-center text-[11px] opacity-0 transition bg-muted/25 text-muted-foreground hover:opacity-100"
                 style={{ left, width, top: `${top}px`, height: `${height}px` }}
                 onClick={() => setSelectedGap(gap)}
               >
